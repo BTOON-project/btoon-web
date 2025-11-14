@@ -1,21 +1,11 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist/public",
-        "buildCommand": "pnpm run build"
-      }
-    }
-  ],
+  "installCommand": "corepack enable pnpm@10.22.0 && pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm run build",
+  "outputDirectory": "dist/public",
   "routes": [
     { "handle": "filesystem" },
-    {
-      "src": "/.*",
-      "dest": "/index.html"
-    }
+    { "src": "/.*", "dest": "/index.html" }
   ]
 }
 
