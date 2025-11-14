@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+pnpm-lock.yaml.*
+
+# Builds
+dist/
+dist-ssr/
+build/
+*.log
+
+# Vite / tooling caches
+.vite/
+.cache/
+.turbo/
+
+# Testing / coverage
+coverage/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Editor cruft
+.DS_Store
+._*
+.AppleDouble
+.LSOverride
+*.swp
+*.swo
+.idea/
+.vscode/
