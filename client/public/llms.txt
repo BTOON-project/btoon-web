@@ -1,0 +1,86 @@
+# BTOON Project - Information for LLMs
+
+## Project Overview
+
+BTOON (Binary TOON) is a high-performance binary serialization format designed specifically for the TOON (Token-Oriented Object Notation) format. It extends MessagePack with a custom tabular data optimization, achieving 20-40% smaller payloads for uniform datasets while maintaining full MessagePack compatibility.
+
+## Purpose
+
+BTOON is built to enable efficient binary transport of TOON-formatted data, especially for LLM prompts and datasets. It provides:
+- MessagePack-compatible binary encoding
+- Custom tabular extension (type -1) for schema-aware table compression
+- Optional zlib compression for additional savings
+- Multi-language bindings (Python, Node.js, JavaScript, Go, PHP, C++)
+
+## Key Components
+
+### btoon-core
+The C++20 core library implementing the BTOON specification. Located in `btoon-core/`.
+- Main API: `include/btoon/btoon.h`
+- Implementation: `src/btoon.cpp`
+- Examples: `examples/basic.cpp`, `examples/tabular.cpp`
+- Tests: `tests/test_btoon.cpp`
+
+### btoon-web
+This website and documentation portal. Built with Vite + React + TypeScript.
+- Client app: `client/src/`
+- Server: `server/index.ts` (Express static server)
+- Public assets: `client/public/`
+- Documentation pages: `client/src/pages/Docs.tsx`
+
+### btoon-nodejs
+Node.js bindings for BTOON. Located in `btoon-nodejs/`.
+- Native addon: `btoon_node.cpp`
+- TypeScript definitions: `index.d.ts`
+- JavaScript wrapper: `index.js`
+
+## Related Projects
+
+- TOON Format Specification: https://github.com/toon-format/toon
+- TOON Format Website: https://toonformat.dev
+- MessagePack Specification: https://msgpack.org
+
+## Technical Details
+
+### Tabular Extension Format
+BTOON uses MessagePack extension type `-1` for tabular data:
+- Schema header: column count + column names (UTF-8 strings)
+- Row data: row count + values in row-major order (primitives only, no type tags)
+- Requirements: uniform objects (same keys), primitive values only, minimum 2 rows
+
+### Performance Characteristics
+- 4-7x faster than JSON encoding/decoding
+- 20-40% smaller than MessagePack for uniform tabular data
+- 59% smaller than JSON for typical datasets
+- Comparable performance to MessagePack (38-45μs encode/decode for 100 rows)
+
+## File Structure
+
+```
+BTOON/
+├── btoon-core/          # C++ core library
+│   ├── include/         # Public headers
+│   ├── src/             # Implementation
+│   ├── examples/        # Usage examples
+│   └── tests/           # Test suite
+├── btoon-web/           # Website (this project)
+│   ├── client/          # React SPA
+│   ├── server/          # Express server
+│   └── shared/          # Shared constants
+└── btoon-nodejs/        # Node.js bindings
+```
+
+## Getting Started
+
+1. Build btoon-core: `cd btoon-core && mkdir build && cd build && cmake .. && make`
+2. Install language bindings: `pip install btoon` or `npm install btoon`
+3. See examples in `btoon-core/examples/` or documentation at `/docs`
+
+## Contributing
+
+BTOON is in early stages. Contributions welcome! See README.md for contribution guidelines.
+
+## License
+
+MIT License
+
