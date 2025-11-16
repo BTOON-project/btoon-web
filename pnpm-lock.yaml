@@ -16,6 +16,9 @@ importers:
 
   .:
     dependencies:
+      '@msgpack/msgpack':
+        specifier: ^3.1.2
+        version: 3.1.2
       '@radix-ui/react-accordion':
         specifier: ^1.2.12
         version: 1.2.12(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -100,6 +103,9 @@ importers:
       axios:
         specifier: ^1.12.0
         version: 1.12.2
+      bson:
+        specifier: ^7.0.0
+        version: 7.0.0
       btoon:
         specifier: ^0.0.7
         version: 0.0.7
@@ -741,6 +747,10 @@ packages:
 
   '@mermaid-js/parser@0.6.3':
     resolution: {integrity: sha512-lnjOhe7zyHjc+If7yT4zoedx2vo4sHaTmtkl1+or8BRTnCtDmcTpAjpzDSfCZrshM5bCoz0GyidzadJAH1xobA==}
+
+  '@msgpack/msgpack@3.1.2':
+    resolution: {integrity: sha512-JEW4DEtBzfe8HvUYecLU9e6+XJnKDlUAIve8FvPzF3Kzs6Xo/KuZkZJsDH0wJXl/qEZbeeE7edxDNY3kMs39hQ==}
+    engines: {node: '>= 18'}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -2007,6 +2017,10 @@ packages:
     resolution: {integrity: sha512-lAUU+02RFBuCKQPj/P6NgjlbCnLBMp4UtgTx7vNHd3XSIJF87s9a5rA3aH2yw3GS9DqZAUbOtZdCCiZeVRqt0w==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
+
+  bson@7.0.0:
+    resolution: {integrity: sha512-Kwc6Wh4lQ5OmkqqKhYGKIuELXl+EPYSCObVE6bWsp1T/cGkOCBN0I8wF/T44BiuhHyNi1mmKVPXk60d41xZ7kw==}
+    engines: {node: '>=20.19.0'}
 
   btoon@0.0.7:
     resolution: {integrity: sha512-2QinwLuRmUZOBQGrKCWx4hVF8xHeK+2GPSS8RTQuDyCQUtDXcTAF0JuZL4beSOcVxVpuvMNr0K5kAPjoH54tjA==}
@@ -4673,6 +4687,8 @@ snapshots:
     dependencies:
       langium: 3.3.1
 
+  '@msgpack/msgpack@3.1.2': {}
+
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -6030,6 +6046,8 @@ snapshots:
       electron-to-chromium: 1.5.232
       node-releases: 2.0.23
       update-browserslist-db: 1.1.3(browserslist@4.26.3)
+
+  bson@7.0.0: {}
 
   btoon@0.0.7:
     dependencies:

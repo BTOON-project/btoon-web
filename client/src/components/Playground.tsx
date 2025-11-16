@@ -20,6 +20,8 @@ import {
   Zap
 } from "lucide-react";
 import axios from "axios";
+import { BSON } from "bson";
+import { encode as msgpackEncode } from "@msgpack/msgpack";
 
 // Categorized example datasets with generators
 const EXAMPLE_CATEGORIES = {
@@ -148,11 +150,15 @@ export default function Playground() {
     btoonSize: number;
     jsonSize: number;
     jsonPrettySize: number;
+    bsonSize: number;
+    msgpackSize: number;
     compression: number;
     tokens: number;
     tokensSaved: number;
     encodeTime: number;
     decodeTime: number;
+    bsonTime: number;
+    msgpackTime: number;
   } | null>(null);
 
   // Generate input JSON when example or size changes
@@ -178,6 +184,20 @@ export default function Playground() {
       const jsonPretty = JSON.stringify(data, null, 2);
       const jsonSize = new TextEncoder().encode(jsonCompact).length;
       const jsonPrettySize = new TextEncoder().encode(jsonPretty).length;
+
+      // Encode with BSON - measure time
+      // BSON doesn't support arrays as root, so wrap in object if needed
+      const bsonStart = performance.now();
+      const bsonData = Array.isArray(data) ? { items: data } : data;
+      const bsonEncoded = BSON.serialize(bsonData);
+      const bsonTime = performance.now() - bsonStart;
+      const bsonSize = bsonEncoded.length;
+
+      // Encode with MessagePack - measure time
+      const msgpackStart = performance.now();
+      const msgpackEncoded = msgpackEncode(data);
+      const msgpackTime = performance.now() - msgpackStart;
+      const msgpackSize = msgpackEncoded.length;
 
       // Encode with btoon - measure time
       const encodeStart = performance.now();
@@ -218,11 +238,15 @@ export default function Playground() {
           btoonSize,
           jsonSize,
           jsonPrettySize,
+          bsonSize,
+          msgpackSize,
           compression,
           tokens: jsonTokens,
           tokensSaved,
           encodeTime,
-          decodeTime
+          decodeTime,
+          bsonTime,
+          msgpackTime
         });
       } else {
         setError(response.data.error || "Encoding failed");
@@ -450,72 +474,93 @@ export default function Playground() {
           </h3>
 
           {/* Size & Performance Comparison */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">JSON (Pretty)</p>
-              <p className="text-2xl font-bold">{formatBytes(stats.jsonPrettySize)}</p>
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground">JSON (Compact)</p>
-              <p className="text-2xl font-bold">{formatBytes(stats.jsonSize)}</p>
+              <p className="text-xl font-bold">{formatBytes(stats.jsonSize)}</p>
+              <p className="text-xs text-muted-foreground">Baseline</p>
             </div>
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">BTOON</p>
-              <p className="text-2xl font-bold text-primary">{formatBytes(stats.btoonSize)}</p>
+              <p className="text-xs text-muted-foreground">BSON</p>
+              <p className="text-xl font-bold">{formatBytes(stats.bsonSize)}</p>
+              <p className="text-xs text-blue-600">{stats.bsonTime.toFixed(1)}ms</p>
             </div>
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">Savings</p>
-              <p className="text-2xl font-bold text-green-600">
+              <p className="text-xs text-muted-foreground">MessagePack</p>
+              <p className="text-xl font-bold">{formatBytes(stats.msgpackSize)}</p>
+              <p className="text-xs text-blue-600">{stats.msgpackTime.toFixed(1)}ms</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs font-bold text-primary">BTOON</p>
+              <p className="text-2xl font-extrabold text-primary">{formatBytes(stats.btoonSize)}</p>
+              <p className="text-xs font-semibold text-primary">{stats.encodeTime.toFixed(0)}ms</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">Best Savings</p>
+              <p className="text-xl font-bold text-green-600">
                 {stats.compression > 0 ? "-" : "+"}
                 {Math.abs(stats.compression).toFixed(1)}%
               </p>
+              <p className="text-xs text-muted-foreground">vs JSON</p>
             </div>
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">Encode Time</p>
-              <p className="text-2xl font-bold">{stats.encodeTime.toFixed(0)}ms</p>
-              {stats.decodeTime > 0 && (
-                <p className="text-xs text-muted-foreground">Decode: {stats.decodeTime.toFixed(0)}ms</p>
-              )}
+              <p className="text-xs text-muted-foreground">vs MessagePack</p>
+              <p className="text-xl font-bold text-green-600">
+                -{((1 - stats.btoonSize / stats.msgpackSize) * 100).toFixed(1)}%
+              </p>
+              <p className="text-xs text-muted-foreground">smaller</p>
             </div>
           </div>
 
           {/* Visual Bar Chart */}
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <div className="flex justify-between text-sm">
-                <span>JSON (Pretty)</span>
-                <span className="text-muted-foreground">{formatBytes(stats.jsonPrettySize)}</span>
-              </div>
-              <div className="h-8 bg-muted rounded-md overflow-hidden">
-                <div
-                  className="h-full bg-blue-500/50"
-                  style={{ width: "100%" }}
-                />
-              </div>
-            </div>
+          <div className="space-y-2">
+            <h4 className="text-sm font-semibold mb-3">Size Comparison</h4>
 
             <div className="space-y-1">
               <div className="flex justify-between text-sm">
                 <span>JSON (Compact)</span>
                 <span className="text-muted-foreground">{formatBytes(stats.jsonSize)}</span>
               </div>
-              <div className="h-8 bg-muted rounded-md overflow-hidden">
+              <div className="h-6 bg-muted rounded-md overflow-hidden">
+                <div className="h-full bg-gray-500" style={{ width: "100%" }} />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex justify-between text-sm">
+                <span>BSON</span>
+                <span className="text-muted-foreground">{formatBytes(stats.bsonSize)}</span>
+              </div>
+              <div className="h-6 bg-muted rounded-md overflow-hidden">
                 <div
-                  className="h-full bg-blue-500/70"
-                  style={{ width: `${(stats.jsonSize / stats.jsonPrettySize) * 100}%` }}
+                  className="h-full bg-orange-500/70"
+                  style={{ width: `${(stats.bsonSize / stats.jsonSize) * 100}%` }}
                 />
               </div>
             </div>
 
             <div className="space-y-1">
-              <div className="flex justify-between text-sm font-semibold">
-                <span className="text-primary">BTOON</span>
-                <span className="text-primary">{formatBytes(stats.btoonSize)}</span>
+              <div className="flex justify-between text-sm">
+                <span>MessagePack</span>
+                <span className="text-muted-foreground">{formatBytes(stats.msgpackSize)}</span>
               </div>
-              <div className="h-8 bg-muted rounded-md overflow-hidden">
+              <div className="h-6 bg-muted rounded-md overflow-hidden">
+                <div
+                  className="h-full bg-blue-500/70"
+                  style={{ width: `${(stats.msgpackSize / stats.jsonSize) * 100}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex justify-between text-sm font-bold">
+                <span className="text-primary">BTOON (Binary TOON)</span>
+                <span className="text-primary font-extrabold">{formatBytes(stats.btoonSize)}</span>
+              </div>
+              <div className="h-7 bg-muted rounded-md overflow-hidden ring-2 ring-primary/50">
                 <div
                   className="h-full bg-primary"
-                  style={{ width: `${(stats.btoonSize / stats.jsonPrettySize) * 100}%` }}
+                  style={{ width: `${(stats.btoonSize / stats.jsonSize) * 100}%` }}
                 />
               </div>
             </div>
@@ -525,43 +570,58 @@ export default function Playground() {
           <div className="p-4 bg-primary/5 border border-primary/20 rounded-md">
             <h4 className="font-semibold mb-3 flex items-center gap-2">
               <Zap className="h-4 w-4 text-primary" />
-              LLM Token Estimation
+              LLM Token Estimation (~3.5 chars/token)
             </h4>
-            <div className="grid grid-cols-4 gap-4 text-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground mb-1">JSON Tokens</p>
+                <p className="text-muted-foreground mb-1">JSON</p>
                 <p className="text-xl font-bold">{formatNumber(stats.tokens)}</p>
                 <p className="text-xs text-muted-foreground mt-1">Baseline</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-1">TOON Tokens</p>
-                <p className="text-xl font-bold text-blue-600">
-                  {formatNumber(Math.ceil(stats.tokens * 0.65))}
+                <p className="text-muted-foreground mb-1">BSON</p>
+                <p className="text-xl font-bold text-orange-600">
+                  {formatNumber(Math.ceil(stats.bsonSize / 3.5))}
                 </p>
                 <p className="text-xs text-green-600 mt-1">
-                  ~{((1 - 0.65) * 100).toFixed(0)}% saved
+                  ~{((1 - stats.bsonSize / (stats.tokens * 3.5)) * 100).toFixed(0)}% saved
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-1">BTOON Tokens</p>
-                <p className="text-xl font-bold text-primary">
-                  {formatNumber(stats.tokens - stats.tokensSaved)}
+                <p className="text-muted-foreground mb-1">MessagePack</p>
+                <p className="text-xl font-bold text-blue-600">
+                  {formatNumber(Math.ceil(stats.msgpackSize / 3.5))}
                 </p>
                 <p className="text-xs text-green-600 mt-1">
-                  ~{((stats.tokensSaved / stats.tokens) * 100).toFixed(0)}% saved
+                  ~{((1 - stats.msgpackSize / (stats.tokens * 3.5)) * 100).toFixed(0)}% saved
+                </p>
+              </div>
+              <div>
+                <p className="text-muted-foreground mb-1">TOON (est.)</p>
+                <p className="text-xl font-bold text-sky-600">
+                  {formatNumber(Math.ceil(stats.tokens * 0.65))}
+                </p>
+                <p className="text-xs text-green-600 mt-1">
+                  ~35% saved
+                </p>
+              </div>
+              <div>
+                <p className="text-muted-foreground mb-1 font-bold">BTOON</p>
+                <p className="text-xl font-extrabold text-primary">
+                  {formatNumber(stats.tokens - stats.tokensSaved)}
+                </p>
+                <p className="text-xs font-semibold text-green-600 mt-1">
+                  {((stats.tokensSaved / stats.tokens) * 100).toFixed(0)}% saved
                 </p>
               </div>
               <div>
                 <p className="text-muted-foreground mb-1">Best Savings</p>
-                <p className="text-xl font-bold text-green-600">
+                <p className="text-2xl font-bold text-green-600">
                   -{formatNumber(stats.tokensSaved)}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">vs JSON</p>
+                <p className="text-xs text-muted-foreground mt-1">tokens</p>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-3">
-              * Estimated using ~3.5 characters per token. TOON estimate based on typical 35% text-based compression.
-            </p>
           </div>
         </Card>
       )}
