@@ -101,8 +101,8 @@ importers:
         specifier: ^1.12.0
         version: 1.12.2
       btoon:
-        specifier: ^0.0.4
-        version: 0.0.4
+        specifier: ^0.0.5
+        version: 0.0.5
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1836,8 +1836,8 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
-  btoon@0.0.4:
-    resolution: {integrity: sha512-h5GjiME/RBterMzMYOziZSc8jk4XzzB/nZRy5z7wl0tzHOVpDYORfhf/3ZNg4OfjusFDBxEhn4PEY+j0jiVQnw==}
+  btoon@0.0.5:
+    resolution: {integrity: sha512-afd9qq4Fujn0FbtlfnfVZ3OKjmUf3QdShwgqsPJOpRtkHS117vXWQwkFIjtYfmVwiiazBjMnhEAmgjHboAJicQ==}
     engines: {node: '>=18.0.0'}
 
   buffer@5.7.1:
@@ -5206,7 +5206,7 @@ snapshots:
       node-releases: 2.0.23
       update-browserslist-db: 1.1.3(browserslist@4.26.3)
 
-  btoon@0.0.4:
+  btoon@0.0.5:
     dependencies:
       node-addon-api: 7.1.1
     optionalDependencies:
