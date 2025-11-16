@@ -224,9 +224,9 @@ encoded = btoon.encode(users)
               <h4 className="font-semibold mb-4">Community</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
-                  <a 
-                    href="https://github.com/BTOON-project" 
-                    target="_blank" 
+                  <a
+                    href="https://github.com/BTOON-project"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="hover:text-foreground transition-colors"
                   >
@@ -234,6 +234,26 @@ encoded = btoon.encode(users)
                   </a>
                 </li>
                 <li><a href="https://btoon.net" className="hover:text-foreground transition-colors">Website</a></li>
+                <li>
+                  <a
+                    href="https://github.com/toon-format/toon#readme"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    TOON Format
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://tonl.dev/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    TONL
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
