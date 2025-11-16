@@ -8,8 +8,11 @@ async function loadBtoon() {
   if (btoon) return btoon;
 
   try {
-    btoon = await import('btoon');
+    const module = await import('btoon');
+    // CommonJS modules are under .default when using ESM dynamic import
+    btoon = module.default || module;
     console.log('✓ Loaded btoon package successfully');
+    console.log('Available methods:', Object.keys(btoon));
     return btoon;
   } catch (err: any) {
     btoonError = err.message || 'Failed to load btoon package';
@@ -22,6 +25,27 @@ export default async function handler(
   req: VercelRequest,
   res: VercelResponse
 ) {
+  // CORS protection - only allow requests from btoon.net
+  const origin = req.headers.origin || req.headers.referer;
+  const allowedOrigins = ['https://btoon.net', 'https://www.btoon.net'];
+
+  if (origin && !allowedOrigins.some(allowed => origin.startsWith(allowed))) {
+    return res.status(403).json({
+      success: false,
+      error: 'Access denied. This API is only accessible from btoon.net'
+    });
+  }
+
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', origin || 'https://btoon.net');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Handle OPTIONS preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   // Only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({
