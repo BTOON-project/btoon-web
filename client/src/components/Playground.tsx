@@ -277,7 +277,7 @@ export default function Playground() {
             <Textarea
               value={JSON.stringify(decoded, null, 2)}
               readOnly
-              className="font-mono text-sm min-h-[200px] bg-muted/50"
+              className="font-mono text-sm min-h-[200px] bg-muted/50 break-all"
             />
           </TabsContent>
         </Tabs>
