@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Link } from "wouter";
 import { Package, ArrowLeft, Book, Code2, Cpu } from "lucide-react";
 import { Streamdown } from "streamdown";
+import Playground from "@/components/Playground";
 
 export default function Docs() {
   return (
@@ -56,6 +57,7 @@ export default function Docs() {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><a href="#introduction" className="hover:text-foreground transition-colors">Introduction</a></li>
                 <li><a href="#installation" className="hover:text-foreground transition-colors">Installation</a></li>
+                <li><a href="#playground" className="hover:text-foreground transition-colors">Live Playground</a></li>
                 <li><a href="#quick-start" className="hover:text-foreground transition-colors">Quick Start</a></li>
               </ul>
             </div>
@@ -196,6 +198,14 @@ npm install @btoon/javascript
 `}
                 </Streamdown>
               </Card>
+            </section>
+
+            <section id="playground" className="mt-12 border-t border-border/40 pt-12 space-y-6">
+              <h2>Live Playground</h2>
+              <p>
+                Try encoding and decoding data with BTOON right in your browser. See how it compares to JSON in terms of size and performance.
+              </p>
+              <Playground />
             </section>
 
             <section id="quick-start" className="mt-12 border-t border-border/40 pt-12 space-y-6">
