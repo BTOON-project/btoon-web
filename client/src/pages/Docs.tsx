@@ -4,8 +4,23 @@ import { Link } from "wouter";
 import { Package, ArrowLeft, Book, Code2, Cpu } from "lucide-react";
 import { Streamdown } from "streamdown";
 import Playground from "@/components/Playground";
+import { useEffect } from "react";
 
 export default function Docs() {
+  // Handle hash navigation for anchor links
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      // Small delay to ensure DOM is rendered
+      setTimeout(() => {
+        const element = document.querySelector(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Navigation */}
