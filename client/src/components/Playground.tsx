@@ -136,6 +136,7 @@ const EXAMPLE_CATEGORIES = {
 };
 
 export default function Playground() {
+  const [mode, setMode] = useState<"encode" | "decode">("encode");
   const [selectedExample, setSelectedExample] = useState<any>(
     EXAMPLE_CATEGORIES["Large Datasets"][0]
   );
@@ -161,9 +162,9 @@ export default function Playground() {
     msgpackTime: number;
   } | null>(null);
 
-  // Generate input JSON when example or size changes
+  // Generate input JSON when example or size changes (encode mode only)
   useMemo(() => {
-    if (selectedExample) {
+    if (mode === "encode" && selectedExample) {
       const data = selectedExample.generator(datasetSize[0]);
       setInput(JSON.stringify(data, null, 2));
       setOutput(null);
@@ -171,7 +172,7 @@ export default function Playground() {
       setError(null);
       setStats(null);
     }
-  }, [selectedExample, datasetSize]);
+  }, [selectedExample, datasetSize, mode]);
 
   const handleEncode = useCallback(async () => {
     setError(null);
@@ -261,15 +262,37 @@ export default function Playground() {
   const handleDecode = useCallback(async () => {
     setError(null);
     setLoading(true);
-    
+
     try {
+      const decodeStart = performance.now();
       const response = await axios.post("/api/decode", {
         data: input.trim(),
       });
-      
+      const decodeTime = performance.now() - decodeStart;
+
       if (response.data.success) {
         setDecoded(response.data.data);
-        setOutput(JSON.stringify(response.data.data, null, 2));
+        const decodedJson = JSON.stringify(response.data.data, null, 2);
+        setOutput(decodedJson);
+
+        // Show basic stats for decode mode
+        const btoonSize = input.trim().length / 2; // hex is 2 chars per byte
+        const jsonSize = new TextEncoder().encode(JSON.stringify(response.data.data)).length;
+
+        setStats({
+          btoonSize,
+          jsonSize,
+          jsonPrettySize: new TextEncoder().encode(decodedJson).length,
+          bsonSize: 0,
+          msgpackSize: 0,
+          compression: ((1 - btoonSize / jsonSize) * 100),
+          tokens: Math.ceil(jsonSize / 3.5),
+          tokensSaved: Math.ceil((jsonSize - btoonSize) / 3.5),
+          encodeTime: 0,
+          decodeTime,
+          bsonTime: 0,
+          msgpackTime: 0
+        });
       } else {
         setError(response.data.error || "Decoding failed");
       }
@@ -307,9 +330,9 @@ export default function Playground() {
   };
 
   return (
-    <div className="space-y-6">
+    <div id="playground" className="space-y-6 scroll-mt-20">
       {/* Header */}
-      <div className="text-center space-y-2">
+      <div className="text-center space-y-4">
         <h2 className="text-3xl font-bold flex items-center justify-center gap-2">
           <Sparkles className="h-8 w-8 text-primary" />
           Interactive Playground
@@ -317,9 +340,42 @@ export default function Playground() {
         <p className="text-muted-foreground">
           Try BTOON with real datasets. Scale them up to see compression benefits grow.
         </p>
+
+        {/* Mode Toggle */}
+        <div className="flex items-center justify-center gap-2">
+          <Button
+            variant={mode === "encode" ? "default" : "outline"}
+            onClick={() => {
+              setMode("encode");
+              setInput("");
+              setOutput(null);
+              setDecoded(null);
+              setError(null);
+              setStats(null);
+            }}
+          >
+            <Play className="h-4 w-4 mr-2" />
+            Encode Mode
+          </Button>
+          <Button
+            variant={mode === "decode" ? "default" : "outline"}
+            onClick={() => {
+              setMode("decode");
+              setInput("");
+              setOutput(null);
+              setDecoded(null);
+              setError(null);
+              setStats(null);
+            }}
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Decode Mode
+          </Button>
+        </div>
       </div>
 
-      {/* Example Categories */}
+      {/* Example Categories - Only show in encode mode */}
+      {mode === "encode" && (
       <Card className="p-6 space-y-4">
         {Object.entries(EXAMPLE_CATEGORIES).map(([category, examples]) => (
           <div key={category} className="space-y-3">
@@ -359,8 +415,10 @@ export default function Playground() {
           </div>
         ))}
       </Card>
+      )}
 
-      {/* Dataset Size Slider */}
+      {/* Dataset Size Slider - Only show in encode mode */}
+      {mode === "encode" && (
       <Card className="p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div>
@@ -386,41 +444,55 @@ export default function Playground() {
           <span>{selectedExample?.maxSize || 100}</span>
         </div>
       </Card>
+      )}
 
       {/* Editor Layout - Side by Side */}
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Input */}
         <Card className="p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold">Input JSON</h3>
+            <h3 className="font-semibold">
+              {mode === "encode" ? "Input JSON" : "Input BTOON (Hex/Base64)"}
+            </h3>
             <Button
-              onClick={handleEncode}
+              onClick={mode === "encode" ? handleEncode : handleDecode}
               disabled={loading}
               size="sm"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
+              ) : mode === "encode" ? (
                 <Play className="h-4 w-4 mr-2" />
+              ) : (
+                <RefreshCw className="h-4 w-4 mr-2" />
               )}
-              Encode
+              {mode === "encode" ? "Encode" : "Decode"}
             </Button>
           </div>
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder='{"name": "BTOON", "version": "0.0.1"}'
+            placeholder={
+              mode === "encode"
+                ? '{"name": "BTOON", "version": "0.0.1"}'
+                : 'Paste hex or base64 encoded BTOON data here...'
+            }
             className="font-mono text-xs h-[400px] resize-none overflow-auto"
           />
           <div className="text-xs text-muted-foreground">
-            {formatBytes(new TextEncoder().encode(input).length)} • {input.split('\n').length} lines
+            {mode === "encode"
+              ? `${formatBytes(new TextEncoder().encode(input).length)} • ${input.split('\n').length} lines`
+              : `${formatBytes(input.trim().length / 2)} (estimated)`
+            }
           </div>
         </Card>
 
         {/* Output */}
         <Card className="p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold">Encoded Output</h3>
+            <h3 className="font-semibold">
+              {mode === "encode" ? "Encoded Output (Hex)" : "Decoded JSON"}
+            </h3>
             {output && (
               <Button
                 variant="ghost"
@@ -444,14 +516,19 @@ export default function Playground() {
                 className="font-mono text-xs h-[400px] bg-muted/50 resize-none overflow-auto"
               />
               <div className="text-xs text-muted-foreground">
-                {formatBytes(output.length / 2)} • Hex format
+                {mode === "encode"
+                  ? `${formatBytes(output.length / 2)} • Hex format`
+                  : `${formatBytes(new TextEncoder().encode(output).length)} • ${output.split('\n').length} lines`
+                }
               </div>
             </>
           ) : (
             <div className="min-h-[400px] flex items-center justify-center text-muted-foreground border border-dashed rounded-md">
               <div className="text-center">
                 <Database className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                <p className="text-sm">Click "Encode" to see output</p>
+                <p className="text-sm">
+                  Click "{mode === "encode" ? "Encode" : "Decode"}" to see output
+                </p>
               </div>
             </div>
           )}
@@ -470,10 +547,11 @@ export default function Playground() {
         <Card className="p-6 space-y-6">
           <h3 className="text-xl font-semibold flex items-center gap-2">
             <BarChart3 className="h-5 w-5 text-primary" />
-            Compression Analysis
+            {mode === "encode" ? "Compression Analysis" : "Decode Analysis"}
           </h3>
 
-          {/* Size & Performance Comparison */}
+          {/* Size & Performance Comparison - Only show full comparison in encode mode */}
+          {mode === "encode" ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground">JSON (Compact)</p>
@@ -511,8 +589,25 @@ export default function Playground() {
               <p className="text-xs text-muted-foreground">smaller</p>
             </div>
           </div>
+          ) : (
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">BTOON Input</p>
+              <p className="text-xl font-bold">{formatBytes(stats.btoonSize)}</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">JSON Output</p>
+              <p className="text-xl font-bold">{formatBytes(stats.jsonSize)}</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">Decode Time</p>
+              <p className="text-xl font-bold text-primary">{stats.decodeTime.toFixed(0)}ms</p>
+            </div>
+          </div>
+          )}
 
-          {/* Visual Bar Chart */}
+          {/* Visual Bar Chart - Only in encode mode */}
+          {mode === "encode" && (
           <div className="space-y-2">
             <h4 className="text-sm font-semibold mb-3">Size Comparison</h4>
 
@@ -565,8 +660,10 @@ export default function Playground() {
               </div>
             </div>
           </div>
+          )}
 
           {/* Token Estimation */}
+          {mode === "encode" && (
           <div className="p-4 bg-primary/5 border border-primary/20 rounded-md">
             <h4 className="font-semibold mb-3 flex items-center gap-2">
               <Zap className="h-4 w-4 text-primary" />
@@ -623,6 +720,7 @@ export default function Playground() {
               </div>
             </div>
           </div>
+          )}
         </Card>
       )}
 

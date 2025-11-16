@@ -60,11 +60,17 @@ export default function Home() {
               BTOON is built for the TOON format—bringing MessagePack-style binary encoding, optional compression, and a custom tabular extension that delivers{" "}
               <strong>20-40% smaller</strong> payloads than MessagePack and dramatically less overhead than JSON.
             </p>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-4">
               <Link href="/docs">
                 <Button size="lg" className="gap-2">
                   <Code className="h-5 w-5" />
                   Get Started
+                </Button>
+              </Link>
+              <Link href="/docs/#playground">
+                <Button size="lg" variant="outline" className="gap-2">
+                  <Zap className="h-5 w-5" />
+                  Try Playground
                 </Button>
               </Link>
               <Link href="/downloads">
