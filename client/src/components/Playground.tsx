@@ -195,7 +195,7 @@ export default function Playground() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder='{"name": "BTOON", "version": "0.0.1"}'
-          className="font-mono text-sm min-h-[200px]"
+          className="font-mono text-sm min-h-[200px] break-all"
         />
       </div>
 
