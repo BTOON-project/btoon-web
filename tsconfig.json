@@ -13,8 +13,7 @@
     "moduleResolution": "bundler",
     "types": ["node", "vite/client"],
     "paths": {
-      "@/*": ["./client/src/*"],
-      "@btoon/js": ["./client/src/vendor/btoon-js/index.d.ts"]
+      "@/*": ["./client/src/*"]
     },
     "target": "ES2022"
   }

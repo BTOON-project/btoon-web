@@ -30,8 +30,6 @@ client/src/pages/            Home, Docs, Benchmarks, Downloads, NotFound
 client/src/components/       site chrome, Playground, LiveBenchmark, CodeBlock, ui/ (shadcn)
 client/src/data/             package status and published benchmark numbers
 client/src/lib/              playground logic (analysis, datasets, formatting) and tests
-client/src/vendor/btoon-js/  vendored build of @btoon/js (generated, see below)
-scripts/sync-btoon-js.mjs    refreshes the vendored @btoon/js
 ```
 
 Pages other than Home load on demand, and so do the playground, the live benchmark and the
@@ -46,20 +44,6 @@ syntax highlighter.
 - **Release status** for every library is in `client/src/data/packages.ts`. Update it when
   something is published.
 - **Format facts** follow [SPEC.md](https://github.com/BTOON-project/btoon-core/blob/main/docs/SPEC.md).
-
-## @btoon/js is vendored
-
-`@btoon/js` 0.1.0 isn't on npm yet, so `client/src/vendor/btoon-js/` holds a copy of its
-portable ESM build, which the `@btoon/js` alias points to. To refresh it after changing
-btoon-javascript:
-
-```bash
-(cd ../btoon-javascript && npm run build)
-pnpm sync:btoon-js
-```
-
-Once it's published, switch to the npm package as described in
-`client/src/vendor/btoon-js/README.md`.
 
 ## Deployment
 

@@ -1,6 +1,6 @@
 // Release status of every BTOON library, shown on Home, Downloads and Docs.
 // Update this file (and only this file) when a version is published.
-// Last checked: 2026-11-07. Library version 0.1.0 (spec 0.1) is not released anywhere yet.
+// Last checked: 2026-11-07. Library version 0.1.0 implements spec 0.1.
 
 export interface PackageInfo {
   id: "core" | "python" | "nodejs" | "javascript" | "go" | "php";
@@ -11,11 +11,13 @@ export interface PackageInfo {
   registry?: string;
   repo: string;
   summary: string;
-  /** The install command once 0.1.0 is published (none for the C++ core: build it). */
+  /** The install command (none for the C++ core: build it or download the CLI). */
   install?: string;
-  /** What works today, before 0.1.0 is published. */
+  /** True once 0.1.0 is on the registry (for Go: once v0.1.0 is tagged). */
+  published: boolean;
+  /** Release status in one or two sentences. */
   status: string;
-  /** Commands that install 0.1.0 today. */
+  /** Build or install from the repository. */
   fromSource: string;
   requirements: string;
 }
@@ -29,7 +31,8 @@ export const PACKAGES: readonly PackageInfo[] = [
     name: "btoon-core",
     repo: `${GH}/btoon-core`,
     summary: "Reference implementation, the spec and the conformance vectors. C++20 library plus the btoon CLI.",
-    status: "Build from source. There is no binary release yet.",
+    published: true,
+    status: "Release 0.1.0 on GitHub has the btoon CLI prebuilt for Linux (x64, arm64), macOS and Windows. The library is built from source.",
     fromSource: `git clone https://github.com/BTOON-project/btoon-core.git
 cd btoon-core
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -46,8 +49,9 @@ cmake --install build   # library, headers, CMake package, btoon CLI`,
     repo: `${GH}/btoon-python`,
     summary: "Native extension over btoon-core (pybind11).",
     install: "pip install btoon",
-    status: "PyPI has 0.0.1, which writes the old 0.0.x format. 0.1.0 is not published yet.",
-    fromSource: `pip install "git+https://github.com/BTOON-project/btoon-python"`,
+    published: true,
+    status: "0.1.0 is on PyPI with wheels for CPython 3.10–3.14 on Linux (x86_64, aarch64; glibc and musl), macOS (arm64, x86_64) and Windows (x64).",
+    fromSource: `pip install "git+https://github.com/BTOON-project/btoon-python"   # needs a C++20 compiler and CMake`,
     requirements: "Python 3.10+. Building from source needs a C++20 compiler and CMake 3.20+.",
   },
   {
@@ -58,7 +62,8 @@ cmake --install build   # library, headers, CMake package, btoon CLI`,
     repo: `${GH}/btoon-nodejs`,
     summary: "Native Node-API addon over btoon-core. Same API as @btoon/js.",
     install: "npm install btoon",
-    status: "npm has 0.0.7, which writes the old 0.0.x format. 0.1.0 is not published yet.",
+    published: true,
+    status: "0.1.0 is on npm with prebuilt binaries for Linux x64 (glibc and musl), Linux arm64 (glibc), macOS (arm64, x64) and Windows (x64). For most Node.js apps @btoon/js is the faster choice.",
     fromSource: `git clone --recursive https://github.com/BTOON-project/btoon-nodejs.git
 cd btoon-nodejs
 npm install && npm run build && npm test`,
@@ -72,7 +77,8 @@ npm install && npm run build && npm test`,
     repo: `${GH}/btoon-javascript`,
     summary: "Pure TypeScript, zero dependencies. Browsers, Node.js, Deno, Bun and edge runtimes. Runs this site's playground.",
     install: "npm install @btoon/js",
-    status: "Not published to npm yet.",
+    published: true,
+    status: "0.1.0 is on npm, published with provenance. It also runs this site's playground.",
     fromSource: `git clone https://github.com/BTOON-project/btoon-javascript.git
 cd btoon-javascript
 npm install && npm run build && npm test`,
@@ -86,8 +92,10 @@ npm install && npm run build && npm test`,
     repo: `${GH}/btoon-go`,
     summary: "Pure Go, standard library only. Optional codecs package for LZ4, Zstandard, Brotli and Snappy.",
     install: "go get github.com/BTOON-project/btoon-go",
-    status: "Not tagged yet: go get resolves to the latest commit on main until v0.1.0 is tagged.",
-    fromSource: "go get github.com/BTOON-project/btoon-go@main",
+    published: true,
+    status: "v0.1.0 is tagged and served by the Go module proxy.",
+    fromSource: `git clone https://github.com/BTOON-project/btoon-go.git
+cd btoon-go && go test ./...`,
     requirements: "Go 1.22+. No cgo.",
   },
   {
@@ -98,9 +106,10 @@ npm install && npm run build && npm test`,
     repo: `${GH}/btoon-php`,
     summary: "Pure PHP, no C extension.",
     install: "composer require btoon/btoon",
-    status: "Not on Packagist yet. Install it from the Git repository.",
-    fromSource: `composer config repositories.btoon vcs https://github.com/BTOON-project/btoon-php
-composer require btoon/btoon:dev-main`,
+    published: true,
+    status: "0.1.0 is on Packagist.",
+    fromSource: `git clone https://github.com/BTOON-project/btoon-php.git
+cd btoon-php && composer install && composer test`,
     requirements: "PHP 8.2+ (64-bit) with ext-zlib. ext-mbstring and ext-gmp are optional speedups.",
   },
 ];

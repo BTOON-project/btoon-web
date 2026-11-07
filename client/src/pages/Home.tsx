@@ -168,11 +168,11 @@ decode(bytes);               // the same 100 objects
         <h2 className="mb-4 text-center text-3xl font-bold">Libraries</h2>
         <p className="mx-auto mb-10 max-w-2xl text-center text-muted-foreground">
           Every library passes the same conformance vectors from btoon-core and writes byte-identical output.
-          Version 0.1.0 is not published to the package registries yet; the{" "}
+          The{" "}
           <Link href="/downloads" className="text-primary hover:underline">
             downloads page
           </Link>{" "}
-          shows how to install each one today.
+          has the install command for each one.
         </p>
         <div className="mx-auto grid max-w-5xl gap-4 md:grid-cols-2 lg:grid-cols-3">
           {PACKAGES.map((p) => (

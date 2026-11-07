@@ -291,11 +291,11 @@ export default function Docs() {
 
           <Section id="installation" title="Installation">
             <p>
-              Version 0.1.0 of every library implements spec 0.1. It isn't published to the package registries yet. The{" "}
-              <Link href="/downloads">downloads page</Link> has the commands that install it today.
+              Version 0.1.0 of every library implements spec 0.1. The{" "}
+              <Link href="/downloads">downloads page</Link> has install and build instructions for each.
             </p>
             <Table
-              head={["Language", "Package", "Install (once published)", "Notes"]}
+              head={["Language", "Package", "Install", "Notes"]}
               rows={PACKAGES.map((p) => [
                 p.language,
                 <span key="n">

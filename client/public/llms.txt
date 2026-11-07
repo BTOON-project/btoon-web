@@ -19,7 +19,7 @@ Key facts:
 
 ## Libraries
 
-Version 0.1.0 is not yet published to the package registries (as of 2026-11-07). PyPI has btoon 0.0.1 and npm has btoon 0.0.7, which use the incompatible 0.0.x format.
+Version 0.1.0 (released 2026-11-07) is on every registry: `npm install @btoon/js` (pure TypeScript, recommended for JavaScript), `npm install btoon` (native Node.js addon), `pip install btoon`, `go get github.com/BTOON-project/btoon-go@v0.1.0`, `composer require btoon/btoon`, and the btoon CLI on the btoon-core GitHub release. The 0.0.x releases used an incompatible format.
 
 - [btoon-core](https://github.com/BTOON-project/btoon-core): C++20 reference implementation and the btoon CLI
 - [btoon-python](https://github.com/BTOON-project/btoon-python): Python bindings over the core, PyPI package btoon
