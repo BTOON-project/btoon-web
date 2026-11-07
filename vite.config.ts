@@ -11,8 +11,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": src,
-      // Vendored until @btoon/js is published to npm: see client/src/vendor/btoon-js/README.md
-      "@btoon/js": path.join(src, "vendor", "btoon-js", "index.js"),
     },
   },
   envDir: path.resolve(import.meta.dirname),

@@ -22,8 +22,7 @@ export default function Downloads() {
           </h1>
           <p className="text-lg text-muted-foreground">
             Library version <strong className="text-foreground">0.1.0</strong> implements spec 0.1 in every language.
-            It isn't published to the package registries yet, so each card shows the command to use once it is,
-            and how to install 0.1.0 today.
+            Each card has the install command and how to build from the repository.
           </p>
         </header>
 
@@ -50,14 +49,14 @@ export default function Downloads() {
                 <div>
                   <div className="mb-2 flex items-center gap-2 text-sm font-medium">
                     Install
-                    <Badge variant="outline">once 0.1.0 is published</Badge>
+                    {!p.published && <Badge variant="outline">coming soon</Badge>}
                   </div>
                   <CodeBlock lang="bash" code={p.install} />
                 </div>
               )}
 
               <div>
-                <div className="mb-2 text-sm font-medium">{p.install ? "Today" : "Build and install"}</div>
+                <div className="mb-2 text-sm font-medium">{!p.install ? "Build and install" : p.published ? "From source" : "Today"}</div>
                 <p className="mb-2 text-sm text-muted-foreground">{p.status}</p>
                 <CodeBlock lang="bash" code={p.fromSource} />
               </div>

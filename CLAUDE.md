@@ -23,9 +23,8 @@ pnpm install && pnpm check && pnpm test && pnpm build
   Benchmark numbers come from the libraries' READMEs, with source, machine and date
   (`client/src/data/benchmarks.ts`). Release status is in `client/src/data/packages.ts`.
   Don't invent numbers.
-- **`client/src/vendor/btoon-js/` is generated.** Refresh it with
-  `node scripts/sync-btoon-js.mjs` after building btoon-javascript. The `@btoon/js` alias
-  in `vite.config.ts` and `tsconfig.json` points there until the package is on npm.
+- **`@btoon/js` comes from npm.** Bump it in `package.json` when btoon-javascript
+  releases. Vite resolves its `browser` export, the portable entry with no `node:` imports.
 - **Links:** use wouter's `<Link>` directly; it renders the `<a>`. For buttons, use
   `<Button asChild><Link …/></Button>`. Never nest an `<a>` inside `<Link>`.
 - **Load heavy code lazily.** Pages other than Home, the Playground, the LiveBenchmark and
