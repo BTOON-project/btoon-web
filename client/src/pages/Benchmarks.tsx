@@ -1,310 +1,120 @@
-import { Button } from "@/components/ui/button";
+import { CodeBlock } from "@/components/CodeBlock";
 import { Card } from "@/components/ui/card";
-import { Link } from "wouter";
-import { Package, ArrowLeft, BarChart3, Zap } from "lucide-react";
+import { NOT_BENCHMARKED, SIZE_TABLE, SPEED_TABLES, type BenchmarkTable } from "@/data/benchmarks";
+import { cn } from "@/lib/utils";
+import { BarChart3 } from "lucide-react";
+import { lazy, Suspense } from "react";
+
+const LiveBenchmark = lazy(() => import("@/components/LiveBenchmark"));
+
+function Table({ table }: { table: BenchmarkTable }) {
+  return (
+    <Card id={table.id} className="scroll-mt-20 gap-4 p-6">
+      <div>
+        <h3 className="text-xl font-semibold">{table.title}</h3>
+        <p className="text-sm text-muted-foreground">{table.method}</p>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-muted-foreground">
+              {table.columns.map((c, i) => (
+                <th key={c} className={cn("whitespace-nowrap py-2 pr-4 font-medium", i === 0 ? "text-left" : "text-right")}>
+                  {c}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {table.rows.map((row, r) => (
+              <tr
+                key={row[0]}
+                className={cn("border-b border-border/50 last:border-0", table.highlight.includes(r) && "font-semibold text-primary")}
+              >
+                {row.map((cell, i) => (
+                  <td key={i} className={cn("py-2 pr-4", i === 0 ? "text-left" : "whitespace-nowrap text-right tabular-nums")}>
+                    {cell}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {table.notes?.map((note) => (
+        <p key={note} className="text-sm text-muted-foreground">
+          {note}
+        </p>
+      ))}
+      <dl className="grid gap-x-6 gap-y-1 text-xs text-muted-foreground sm:grid-cols-[auto_1fr]">
+        <dt className="font-medium text-foreground">Library</dt>
+        <dd>{table.library}</dd>
+        <dt className="font-medium text-foreground">Machine</dt>
+        <dd>{table.machine}</dd>
+        <dt className="font-medium text-foreground">Measured</dt>
+        <dd>{table.date}</dd>
+        <dt className="font-medium text-foreground">Source</dt>
+        <dd>
+          <a href={table.source} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+            {table.source.replace("https://github.com/", "")}
+          </a>
+        </dd>
+      </dl>
+      {table.reproduce && <CodeBlock lang="bash" code={table.reproduce} />}
+    </Card>
+  );
+}
 
 export default function Benchmarks() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Navigation */}
-      <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container flex h-16 items-center justify-between">
-          <Link href="/">
-            <a className="flex items-center gap-2">
-              <Package className="h-6 w-6 text-primary" />
-              <span className="text-xl font-bold">BTOON</span>
-            </a>
-          </Link>
-          
-          <div className="flex items-center gap-6">
-            <Link href="/docs">
-              <a className="text-sm font-medium hover:text-primary transition-colors">
-                Docs
-              </a>
-            </Link>
-            <Link href="/benchmarks">
-              <a className="text-sm font-medium text-primary">
-                Benchmarks
-              </a>
-            </Link>
-            <Link href="/downloads">
-              <a className="text-sm font-medium hover:text-primary transition-colors">
-                Downloads
-              </a>
-            </Link>
+    <div className="container py-12">
+      <div className="mx-auto max-w-4xl space-y-12">
+        <header>
+          <h1 className="mb-4 flex items-center gap-3 text-4xl font-bold">
+            <BarChart3 className="h-10 w-10 text-primary" />
+            Benchmarks
+          </h1>
+          <p className="text-lg text-muted-foreground">
+            Every number on this page was measured and is published in the README of the library it belongs to,
+            with the machine and the method. The live benchmark at the bottom runs in your browser.
+          </p>
+        </header>
+
+        <section className="space-y-4">
+          <h2 className="text-2xl font-semibold">Size</h2>
+          <p className="text-muted-foreground">
+            Size is where BTOON helps. All libraries write the same bytes for the same value, so these sizes hold for every
+            language.
+          </p>
+          <Table table={SIZE_TABLE} />
+        </section>
+
+        <section className="space-y-4">
+          <h2 className="text-2xl font-semibold">Speed</h2>
+          <p className="text-muted-foreground">
+            Speed depends on the implementation, not the format. In Python, JavaScript and Go, BTOON is about as fast as
+            the JSON or MessagePack library it is compared with, and faster in some cases. The Node.js native addon is
+            the exception: it is slower than pure JavaScript, so in Node.js @btoon/js is the faster choice. The datasets
+            differ between libraries, so compare within a table, not across tables.
+          </p>
+          <div className="space-y-6">
+            {SPEED_TABLES.map((t) => (
+              <Table key={t.id} table={t} />
+            ))}
           </div>
-        </div>
-      </nav>
+          <p className="text-sm text-muted-foreground">Not benchmarked yet: {NOT_BENCHMARKED.join(", ")}.</p>
+        </section>
 
-      <div className="container py-12">
-        <Link href="/">
-          <Button variant="ghost" className="mb-8 gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </Button>
-        </Link>
-
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-12">
-            <h1 className="text-4xl font-bold mb-4 flex items-center gap-3">
-              <BarChart3 className="h-10 w-10 text-primary" />
-              Performance Benchmarks
-            </h1>
-            <p className="text-xl text-muted-foreground">
-              Comprehensive performance comparison of BTOON against JSON and MessagePack
-            </p>
-          </div>
-
-          {/* Test Environment */}
-          <Card className="p-6 bg-card border-border mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Test Environment</h2>
-            <ul className="space-y-2 text-muted-foreground">
-              <li><strong>CPU:</strong> Intel Core i7-9750H @ 2.60GHz</li>
-              <li><strong>RAM:</strong> 16GB DDR4</li>
-              <li><strong>OS:</strong> Ubuntu 22.04 LTS</li>
-              <li><strong>Compiler:</strong> GCC 11.4.0 with -O3 optimization</li>
-              <li><strong>Dataset:</strong> 100 uniform user records with 5 fields each</li>
-            </ul>
-          </Card>
-
-          {/* Size Comparison */}
-          <section className="mb-12">
-            <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
-              <Zap className="h-6 w-6 text-primary" />
-              Size Comparison
-            </h2>
-            
-            <Card className="p-6 bg-card border-border mb-6">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left py-3 px-4">Format</th>
-                      <th className="text-right py-3 px-4">Size (bytes)</th>
-                      <th className="text-right py-3 px-4">vs JSON</th>
-                      <th className="text-right py-3 px-4">vs MessagePack</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b border-border/50">
-                      <td className="py-3 px-4 text-muted-foreground">JSON</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">4,523</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">-</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">-</td>
-                    </tr>
-                    <tr className="border-b border-border/50">
-                      <td className="py-3 px-4 text-muted-foreground">MessagePack</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">2,741</td>
-                      <td className="text-right py-3 px-4 text-green-500">-39.4%</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">-</td>
-                    </tr>
-                    <tr className="border-b border-border/50">
-                      <td className="py-3 px-4 font-semibold text-primary">BTOON Tabular</td>
-                      <td className="text-right py-3 px-4 font-semibold text-primary">1,847</td>
-                      <td className="text-right py-3 px-4 text-green-500 font-semibold">-59.2%</td>
-                      <td className="text-right py-3 px-4 text-green-500 font-semibold">-32.6%</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3 px-4 font-semibold text-primary">BTOON + zlib</td>
-                      <td className="text-right py-3 px-4 font-semibold text-primary">798</td>
-                      <td className="text-right py-3 px-4 text-green-500 font-semibold">-82.4%</td>
-                      <td className="text-right py-3 px-4 text-green-500 font-semibold">-70.9%</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <Card className="p-4 bg-card border-border">
-                <div className="text-sm text-muted-foreground mb-2">Size Savings vs JSON</div>
-                <div className="text-3xl font-bold text-primary">59.2%</div>
-                <div className="text-xs text-muted-foreground mt-1">Without compression</div>
-              </Card>
-              
-              <Card className="p-4 bg-card border-border">
-                <div className="text-sm text-muted-foreground mb-2">Size Savings vs MessagePack</div>
-                <div className="text-3xl font-bold text-primary">32.6%</div>
-                <div className="text-xs text-muted-foreground mt-1">Tabular optimization</div>
-              </Card>
-            </div>
-          </section>
-
-          {/* Speed Comparison */}
-          <section className="mb-12">
-            <h2 className="text-2xl font-semibold mb-6">Encoding Speed</h2>
-            
-            <Card className="p-6 bg-card border-border mb-6">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left py-3 px-4">Format</th>
-                      <th className="text-right py-3 px-4">Time (μs)</th>
-                      <th className="text-right py-3 px-4">Speedup vs JSON</th>
-                      <th className="text-right py-3 px-4">Throughput</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b border-border/50">
-                      <td className="py-3 px-4 text-muted-foreground">JSON</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">~150</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">1.0x</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">~30 MB/s</td>
-                    </tr>
-                    <tr className="border-b border-border/50">
-                      <td className="py-3 px-4 text-muted-foreground">MessagePack</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">~35</td>
-                      <td className="text-right py-3 px-4 text-green-500">4.3x</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">~78 MB/s</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3 px-4 font-semibold text-primary">BTOON Tabular</td>
-                      <td className="text-right py-3 px-4 font-semibold text-primary">~38</td>
-                      <td className="text-right py-3 px-4 text-green-500 font-semibold">3.9x</td>
-                      <td className="text-right py-3 px-4 font-semibold text-primary">~119 MB/s</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-
-            <h2 className="text-2xl font-semibold mb-6 mt-8">Decoding Speed</h2>
-            
-            <Card className="p-6 bg-card border-border">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left py-3 px-4">Format</th>
-                      <th className="text-right py-3 px-4">Time (μs)</th>
-                      <th className="text-right py-3 px-4">Speedup vs JSON</th>
-                      <th className="text-right py-3 px-4">Throughput</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b border-border/50">
-                      <td className="py-3 px-4 text-muted-foreground">JSON</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">~280</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">1.0x</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">~16 MB/s</td>
-                    </tr>
-                    <tr className="border-b border-border/50">
-                      <td className="py-3 px-4 text-muted-foreground">MessagePack</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">~42</td>
-                      <td className="text-right py-3 px-4 text-green-500">6.7x</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">~65 MB/s</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3 px-4 font-semibold text-primary">BTOON Tabular</td>
-                      <td className="text-right py-3 px-4 font-semibold text-primary">~45</td>
-                      <td className="text-right py-3 px-4 text-green-500 font-semibold">6.2x</td>
-                      <td className="text-right py-3 px-4 font-semibold text-primary">~100 MB/s</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-          </section>
-
-          {/* Scaling Behavior */}
-          <section className="mb-12">
-            <h2 className="text-2xl font-semibold mb-6">Scaling Behavior</h2>
-            
-            <Card className="p-6 bg-card border-border">
-              <p className="text-muted-foreground mb-4">
-                BTOON's tabular optimization becomes more effective as dataset size increases:
-              </p>
-              
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left py-3 px-4">Rows</th>
-                      <th className="text-right py-3 px-4">JSON Size</th>
-                      <th className="text-right py-3 px-4">MessagePack Size</th>
-                      <th className="text-right py-3 px-4">BTOON Size</th>
-                      <th className="text-right py-3 px-4">BTOON Savings</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b border-border/50">
-                      <td className="py-3 px-4 text-muted-foreground">10</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">523 bytes</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">274 bytes</td>
-                      <td className="text-right py-3 px-4 text-primary">184 bytes</td>
-                      <td className="text-right py-3 px-4 text-green-500">32.8%</td>
-                    </tr>
-                    <tr className="border-b border-border/50">
-                      <td className="py-3 px-4 text-muted-foreground">100</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">4,523 bytes</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">2,741 bytes</td>
-                      <td className="text-right py-3 px-4 text-primary">1,847 bytes</td>
-                      <td className="text-right py-3 px-4 text-green-500">32.6%</td>
-                    </tr>
-                    <tr className="border-b border-border/50">
-                      <td className="py-3 px-4 text-muted-foreground">1,000</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">45,023 bytes</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">27,401 bytes</td>
-                      <td className="text-right py-3 px-4 text-primary">18,047 bytes</td>
-                      <td className="text-right py-3 px-4 text-green-500">34.1%</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3 px-4 text-muted-foreground">10,000</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">450,123 bytes</td>
-                      <td className="text-right py-3 px-4 text-muted-foreground">273,901 bytes</td>
-                      <td className="text-right py-3 px-4 text-primary">180,147 bytes</td>
-                      <td className="text-right py-3 px-4 text-green-500">34.2%</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-          </section>
-
-          {/* Methodology */}
-          <section>
-            <h2 className="text-2xl font-semibold mb-6">Methodology</h2>
-            
-            <Card className="p-6 bg-card border-border">
-              <h3 className="font-semibold mb-3">Test Dataset</h3>
-              <p className="text-muted-foreground mb-4">
-                All benchmarks use a uniform dataset of user records with the following structure:
-              </p>
-              <pre className="bg-background p-4 rounded border border-border text-sm overflow-x-auto">
-{`{
-  "id": 1,
-  "name": "User1",
-  "email": "user1@example.com",
-  "age": 21,
-  "active": true
-}`}
-              </pre>
-              
-              <h3 className="font-semibold mb-3 mt-6">Measurement</h3>
-              <ul className="space-y-2 text-muted-foreground">
-                <li>• Each test runs 1,000 iterations with warm-up</li>
-                <li>• Timing measured using high-resolution clock</li>
-                <li>• Median values reported to reduce noise</li>
-                <li>• Size measured in bytes after encoding</li>
-              </ul>
-              
-              <h3 className="font-semibold mb-3 mt-6">Source Code</h3>
-              <p className="text-muted-foreground">
-                Benchmark source code is available in the{" "}
-                <a 
-                  href="https://github.com/BTOON-project/btoon-core/tree/main/benchmarks" 
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  btoon-core repository
-                </a>
-                .
-              </p>
-            </Card>
-          </section>
-        </div>
+        <section id="live" className="scroll-mt-20 space-y-4">
+          <h2 className="text-2xl font-semibold">Live benchmark</h2>
+          <p className="text-muted-foreground">
+            Measured in your browser, with @btoon/js (the pure TypeScript library that also runs the playground),
+            @msgpack/msgpack and the browser's JSON.
+          </p>
+          <Suspense fallback={<Card className="h-40 p-6" aria-busy="true" />}>
+            <LiveBenchmark />
+          </Suspense>
+        </section>
       </div>
     </div>
   );

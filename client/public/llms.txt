@@ -1,86 +1,36 @@
-# BTOON Project - Information for LLMs
+# BTOON
 
-## Project Overview
+> BTOON ("Binary TOON") is a compact binary serialization format: MessagePack plus a columnar ("tabular") encoding for arrays of uniform objects, extension types (timestamp, date, datetime, bigint, float32/float64 vectors), an optional compression envelope and an optional HMAC-SHA256 signed envelope. Encoding is canonical (one value, one byte sequence, in every language) and decoders are hardened for hostile input. Spec version 0.1; library version 0.1.0.
 
-BTOON (Binary TOON) is a high-performance binary serialization format designed specifically for the TOON (Token-Oriented Object Notation) format. It extends MessagePack with a custom tabular data optimization, achieving 20-40% smaller payloads for uniform datasets while maintaining full MessagePack compatibility.
+Key facts:
 
-## Purpose
+- Every BTOON document is valid MessagePack. BTOON's own types use negative extension ids: -1 timestamp, -2 date, -3 datetime, -4 bigint, -5 float32 vector, -6 float64 vector, -10 tabular. Generic MessagePack decoders see them as opaque extensions. With tabular encoding off, output is plain canonical MessagePack.
+- Tabular encoding writes each key of an array of uniform maps once, then each column's values. Encoders use it only when a fixed size rule says it is smaller, so all implementations agree. Typical saving on record-shaped data: 35-45% versus MessagePack before compression.
+- Canonical rules: smallest integer form by value, floats always float64 (NaN as 7ff8000000000000), map keys sorted by UTF-8 bytes, smallest headers, no trailing bytes.
+- Decoders reject invalid UTF-8, duplicate keys, trailing bytes and non-string keys (strict mode, the default), limit nesting to 128, never allocate more than the input justifies, and cap decompression (256 MiB by default). Errors have stable codes such as truncated, invalid_utf8, duplicate_key, max_depth, invalid_tabular, invalid_envelope, size_limit, authentication_failed.
+- Compression envelope: "BTON" magic, 16-byte header, zlib (required), LZ4, Zstandard, Brotli or Snappy. Signed envelope: "BTSG" magic, HMAC-SHA256 over header and payload, verified before parsing. Layering: sign(compress(encode(value))).
+- BTOON borrows TOON's idea of writing table field names once. It is not a binary encoding of TOON text and is meant for storage and transport between programs, not for LLM prompts.
 
-BTOON is built to enable efficient binary transport of TOON-formatted data, especially for LLM prompts and datasets. It provides:
-- MessagePack-compatible binary encoding
-- Custom tabular extension (type -1) for schema-aware table compression
-- Optional zlib compression for additional savings
-- Multi-language bindings (Python, Node.js, JavaScript, Go, PHP, C++)
+## Specification
 
-## Key Components
+- [SPEC.md](https://github.com/BTOON-project/btoon-core/blob/main/docs/SPEC.md): the authoritative format specification (version 0.1)
+- [Conformance vectors](https://github.com/BTOON-project/btoon-core/tree/main/tests/vectors): test cases every implementation must pass
+- [Implementation guide](https://github.com/BTOON-project/btoon-core/blob/main/docs/IMPLEMENTATION-GUIDE.md): notes for writing a new implementation
 
-### btoon-core
-The C++20 core library implementing the BTOON specification. Located in `btoon-core/`.
-- Main API: `include/btoon/btoon.h`
-- Implementation: `src/btoon.cpp`
-- Examples: `examples/basic.cpp`, `examples/tabular.cpp`
-- Tests: `tests/test_btoon.cpp`
+## Libraries
 
-### btoon-web
-This website and documentation portal. Built with Vite + React + TypeScript.
-- Client app: `client/src/`
-- Server: `server/index.ts` (Express static server)
-- Public assets: `client/public/`
-- Documentation pages: `client/src/pages/Docs.tsx`
+Version 0.1.0 is not yet published to the package registries (as of 2026-11-07). PyPI has btoon 0.0.1 and npm has btoon 0.0.7, which use the incompatible 0.0.x format.
 
-### btoon-nodejs
-Node.js bindings for BTOON. Located in `btoon-nodejs/`.
-- Native addon: `btoon_node.cpp`
-- TypeScript definitions: `index.d.ts`
-- JavaScript wrapper: `index.js`
+- [btoon-core](https://github.com/BTOON-project/btoon-core): C++20 reference implementation and the btoon CLI
+- [btoon-python](https://github.com/BTOON-project/btoon-python): Python bindings over the core, PyPI package btoon
+- [btoon-nodejs](https://github.com/BTOON-project/btoon-nodejs): Node.js native addon over the core, npm package btoon
+- [btoon-javascript](https://github.com/BTOON-project/btoon-javascript): pure TypeScript for browsers, Node.js, Deno, Bun and edge runtimes, npm package @btoon/js
+- [btoon-go](https://github.com/BTOON-project/btoon-go): pure Go, module github.com/BTOON-project/btoon-go
+- [btoon-php](https://github.com/BTOON-project/btoon-php): pure PHP, Composer package btoon/btoon
 
-## Related Projects
+## Website
 
-- TOON Format Specification: https://github.com/toon-format/toon
-- TOON Format Website: https://toonformat.dev
-- MessagePack Specification: https://msgpack.org
-
-## Technical Details
-
-### Tabular Extension Format
-BTOON uses MessagePack extension type `-1` for tabular data:
-- Schema header: column count + column names (UTF-8 strings)
-- Row data: row count + values in row-major order (primitives only, no type tags)
-- Requirements: uniform objects (same keys), primitive values only, minimum 2 rows
-
-### Performance Characteristics
-- 4-7x faster than JSON encoding/decoding
-- 20-40% smaller than MessagePack for uniform tabular data
-- 59% smaller than JSON for typical datasets
-- Comparable performance to MessagePack (38-45μs encode/decode for 100 rows)
-
-## File Structure
-
-```
-BTOON/
-├── btoon-core/          # C++ core library
-│   ├── include/         # Public headers
-│   ├── src/             # Implementation
-│   ├── examples/        # Usage examples
-│   └── tests/           # Test suite
-├── btoon-web/           # Website (this project)
-│   ├── client/          # React SPA
-│   ├── server/          # Express server
-│   └── shared/          # Shared constants
-└── btoon-nodejs/        # Node.js bindings
-```
-
-## Getting Started
-
-1. Build btoon-core: `cd btoon-core && mkdir build && cd build && cmake .. && make`
-2. Install language bindings: `pip install btoon` or `npm install btoon`
-3. See examples in `btoon-core/examples/` or documentation at `/docs`
-
-## Contributing
-
-BTOON is in early stages. Contributions welcome! See README.md for contribution guidelines.
-
-## License
-
-MIT License
-
+- [Documentation](https://btoon.net/docs): overview, API options, error codes and format summary
+- [Playground](https://btoon.net/docs#playground): encode JSON and decode BTOON in the browser
+- [Benchmarks](https://btoon.net/benchmarks): published size and speed measurements, plus a benchmark that runs in the browser
+- [Downloads](https://btoon.net/downloads): install and build instructions for each library

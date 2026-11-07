@@ -1,18 +1,18 @@
-import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
+/// <reference types="vitest/config" />
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import fs from "node:fs";
-import path from "path";
+import path from "node:path";
 import { defineConfig } from "vite";
-const plugins = [react(), tailwindcss(), jsxLocPlugin()];
+
+const src = path.resolve(import.meta.dirname, "client", "src");
 
 export default defineConfig({
-  plugins,
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      "@": path.resolve(import.meta.dirname, "client", "src"),
-      "@shared": path.resolve(import.meta.dirname, "shared"),
-      "@assets": path.resolve(import.meta.dirname, "attached_assets"),
+      "@": src,
+      // Vendored until @btoon/js is published to npm: see client/src/vendor/btoon-js/README.md
+      "@btoon/js": path.join(src, "vendor", "btoon-js", "index.js"),
     },
   },
   envDir: path.resolve(import.meta.dirname),
@@ -26,15 +26,12 @@ export default defineConfig({
     strictPort: false, // Will find next available port if 3000 is busy
     host: true,
     allowedHosts: ["localhost", "127.0.0.1"],
-    proxy: {
-      "/api": {
-        target: "http://localhost:3001",
-        changeOrigin: true,
-      },
-    },
     fs: {
       strict: true,
       deny: ["**/.*"],
     },
+  },
+  test: {
+    include: ["src/**/*.test.ts"],
   },
 });
