@@ -139,7 +139,25 @@ export const SPEED_TABLES: readonly BenchmarkTable[] = [
     notes: ["Encoded size of the same data: BTOON 51,508 B (tabular), 92,399 B with DisableTabular, 13,361 B in a zlib envelope; JSON 135,596 B."],
     reproduce: "make bench",
   },
+  {
+    id: "php",
+    title: "PHP",
+    library: "btoon/btoon 0.1.0 (pure PHP)",
+    source: `${GH}/btoon-php#performance`,
+    machine: "Apple M4 Max, PHP 8.5.12",
+    date: "2026-11-07",
+    method: "php bench/bench.php, 10,000 records (id, name, email, age, score, active), best of 7. JIT: opcache.jit=tracing.",
+    columns: ["Library", "Size", "Encode", "Decode", "Encode, JIT", "Decode, JIT"],
+    rows: [
+      ["BTOON\\encode / decode", "447 KB", "5.5 ms", "5.8 ms", "3.7 ms", "3.7 ms"],
+      ["auto_tabular => false", "767 KB", "7.3 ms", "12.3 ms", "4.8 ms", "6.0 ms"],
+      ["json_encode / json_decode (C)", "1,018 KB", "2.1 ms", "3.6 ms", "2.2 ms", "3.6 ms"],
+    ],
+    highlight: [0],
+    notes: ["JSON is a C extension and this library is pure PHP. The output is byte-identical to the Python library's for the same data."],
+    reproduce: "php bench/bench.php",
+  },
 ];
 
 /** Libraries without published numbers yet. */
-export const NOT_BENCHMARKED = ["PHP (btoon/btoon)"];
+export const NOT_BENCHMARKED: readonly string[] = [];

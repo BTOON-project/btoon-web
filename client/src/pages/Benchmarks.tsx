@@ -102,7 +102,9 @@ export default function Benchmarks() {
               <Table key={t.id} table={t} />
             ))}
           </div>
-          <p className="text-sm text-muted-foreground">Not benchmarked yet: {NOT_BENCHMARKED.join(", ")}.</p>
+          {NOT_BENCHMARKED.length > 0 && (
+            <p className="text-sm text-muted-foreground">Not benchmarked yet: {NOT_BENCHMARKED.join(", ")}.</p>
+          )}
         </section>
 
         <section id="live" className="scroll-mt-20 space-y-4">
