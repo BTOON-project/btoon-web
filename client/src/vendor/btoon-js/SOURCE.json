@@ -1,0 +1,28 @@
+{
+  "package": "@btoon/js",
+  "version": "0.1.0",
+  "repository": "https://github.com/BTOON-project/btoon-javascript",
+  "revision": "2a0d067",
+  "entry": "dist/esm/index.js (portable entry, no node: imports)",
+  "files": [
+    "constants.d.ts",
+    "constants.js",
+    "core.d.ts",
+    "core.js",
+    "decode.js",
+    "encode.js",
+    "errors.d.ts",
+    "errors.js",
+    "index.d.ts",
+    "index.js",
+    "inflate.js",
+    "options.d.ts",
+    "options.js",
+    "platform-portable.js",
+    "sha256.js",
+    "utf8.js",
+    "values.d.ts",
+    "values.js",
+    "web.js"
+  ]
+}

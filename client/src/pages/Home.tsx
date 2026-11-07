@@ -1,274 +1,209 @@
+import { CodeBlock } from "@/components/CodeBlock";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { SIZE_TABLE } from "@/data/benchmarks";
+import { PACKAGES } from "@/data/packages";
+import { cn } from "@/lib/utils";
+import { Binary, Clock, Code, Download, Layers, Lock, ShieldCheck, Table2, Zap } from "lucide-react";
 import { Link } from "wouter";
-import { Code, Zap, Database, Package, Download, Github } from "lucide-react";
-import { Streamdown } from "streamdown";
+
+const FEATURES = [
+  {
+    icon: Table2,
+    title: "Tables write each key once",
+    text: "Arrays of objects with the same keys are stored column by column. Encoders switch to this layout only when it is smaller, by a fixed size rule, so every library makes the same choice.",
+  },
+  {
+    icon: Binary,
+    title: "Canonical bytes",
+    text: "Smallest integer forms, float64, and keys sorted by UTF-8 bytes. One value has one encoding in every language, so encodings can be hashed, cached and signed.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Safe on hostile input",
+    text: "Bounds-checked reads, a nesting limit, no allocation beyond what the input justifies, strict UTF-8 and capped decompression. The C++ core is fuzzed and tested under sanitizers.",
+  },
+  {
+    icon: Layers,
+    title: "MessagePack underneath",
+    text: "Every BTOON document is valid MessagePack. BTOON's own types are extension types, and with the tabular encoding off the output is plain canonical MessagePack.",
+  },
+  {
+    icon: Clock,
+    title: "More types",
+    text: "Timestamps with nanoseconds and an optional UTC offset, dates, arbitrary-size integers, and packed float32/float64 vectors for embeddings.",
+  },
+  {
+    icon: Lock,
+    title: "Compression and signing",
+    text: "An optional envelope compresses with zlib (LZ4, Zstandard, Brotli and Snappy where available). Another one signs with HMAC-SHA256, verified before parsing.",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Navigation */}
-      <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Package className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">BTOON</span>
-          </div>
-          
-          <div className="flex items-center gap-6">
-            <Link href="/docs">
-              <a className="text-sm font-medium hover:text-primary transition-colors">
-                Docs
-              </a>
-            </Link>
-            <Link href="/benchmarks">
-              <a className="text-sm font-medium hover:text-primary transition-colors">
-                Benchmarks
-              </a>
-            </Link>
-            <Link href="/downloads">
-              <a className="text-sm font-medium hover:text-primary transition-colors">
-                Downloads
-              </a>
-            </Link>
-            <a 
-              href="https://github.com/BTOON-project" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1"
-            >
-              <Github className="h-4 w-4" />
-              GitHub
-            </a>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="container py-24 md:py-32">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+    <>
+      <section className="container py-20 md:py-28">
+        <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>
-            <div className="inline-block px-3 py-1 mb-6 text-sm font-medium bg-primary/10 text-primary rounded-full">
-              TOON Format + Binary
-            </div>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              Binary TOON Serialization,
-              <br />
-              Optimized for Uniform Tables
+            <Badge variant="secondary" className="mb-6">
+              Spec 0.1 · MessagePack-compatible
+            </Badge>
+            <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl">
+              MessagePack, with tables that store each key once
             </h1>
-            <p className="text-xl text-muted-foreground mb-8">
-              BTOON is built for the TOON format—bringing MessagePack-style binary encoding, optional compression, and a custom tabular extension that delivers{" "}
-              <strong>20-40% smaller</strong> payloads than MessagePack and dramatically less overhead than JSON.
+            <p className="mb-8 text-xl text-muted-foreground">
+              BTOON is a binary serialization format: MessagePack plus a columnar encoding for arrays of
+              uniform objects, a few extra types, and optional compression and signing. On record-shaped
+              data it is typically <strong className="text-foreground">35–45% smaller than MessagePack</strong>{" "}
+              before compression, and every library writes the same bytes.
             </p>
             <div className="flex flex-wrap gap-4">
-              <Link href="/docs">
-                <Button size="lg" className="gap-2">
+              <Button asChild size="lg">
+                <Link href="/docs">
                   <Code className="h-5 w-5" />
-                  Get Started
-                </Button>
-              </Link>
-              <Link href="/docs/#playground">
-                <Button size="lg" variant="outline" className="gap-2">
+                  Get started
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/docs#playground">
                   <Zap className="h-5 w-5" />
-                  Try Playground
-                </Button>
-              </Link>
-              <Link href="/downloads">
-                <Button size="lg" variant="outline" className="gap-2">
+                  Try the playground
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/downloads">
                   <Download className="h-5 w-5" />
-                  Download
-                </Button>
-              </Link>
+                  Downloads
+                </Link>
+              </Button>
             </div>
           </div>
-          
-          <div className="bg-card border border-border rounded-lg p-6">
-            <div className="text-sm font-mono">
-              <div className="text-muted-foreground mb-4"># Python Example</div>
-              <Streamdown>
-{`\`\`\`python
-import btoon
 
-# Tabular data (100 users)
-users = [
-    {"id": i, "name": f"User{i}", 
-     "email": f"user{i}@example.com"}
-    for i in range(100)
-]
+          <Card className="gap-3 p-6">
+            <div className="text-sm text-muted-foreground">JavaScript, with @btoon/js</div>
+            <CodeBlock
+              lang="javascript"
+              code={`import { encode, decode } from "@btoon/js";
 
-# Automatic optimization
-encoded = btoon.encode(users)
+const users = Array.from({ length: 100 }, (_, i) => ({
+  id: i,
+  name: \`User\${i}\`,
+  email: \`user\${i}@example.com\`,
+}));
 
-# 46% smaller than MessagePack
-# 59% smaller than JSON
-\`\`\`
-`}
-              </Streamdown>
-            </div>
-          </div>
-        </div>
-      </section>
+const bytes = encode(users); // 2,734 bytes
+decode(bytes);               // the same 100 objects
 
-      {/* Features */}
-      <section className="container py-16">
-        <h2 className="text-3xl font-bold text-center mb-12">Why BTOON?</h2>
-        <div className="grid md:grid-cols-3 gap-6">
-          <Card className="p-6 bg-card border-border">
-            <Zap className="h-10 w-10 text-primary mb-4" />
-            <h3 className="text-xl font-semibold mb-2">High Performance</h3>
-            <p className="text-muted-foreground">
-              4-7x faster than JSON with near-native C++ performance. Encode/decode 100 rows in under 50 microseconds.
-            </p>
-          </Card>
-          
-          <Card className="p-6 bg-card border-border">
-            <Database className="h-10 w-10 text-primary mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Tabular Optimization</h3>
-            <p className="text-muted-foreground">
-              Custom extension type -1 encodes schema once, then packs rows as primitives. Perfect for LLM data exchange.
-            </p>
-          </Card>
-          
-          <Card className="p-6 bg-card border-border">
-            <Package className="h-10 w-10 text-primary mb-4" />
-            <h3 className="text-xl font-semibold mb-2">TOON + MessagePack Compatible</h3>
-            <p className="text-muted-foreground">
-              Extends the TOON format with a MessagePack-compatible binary layer so you can reuse existing tooling while gaining TOON&apos;s schema-aware tables.
-            </p>
+// MessagePack: 4,183 bytes. Minified JSON: 5,471 bytes.`}
+            />
           </Card>
         </div>
       </section>
 
-      {/* Language Support */}
       <section className="container py-16">
-        <h2 className="text-3xl font-bold text-center mb-12">Multi-Language Support</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
-          {[
-            { name: "Python", pkg: "pip install btoon" },
-            { name: "Node.js", pkg: "npm install btoon" },
-            { name: "JavaScript", pkg: "npm install @btoon/javascript" },
-            { name: "Go", pkg: "go get github.com/BTOON-project/btoon-go" },
-            { name: "PHP", pkg: "composer require btoon/btoon" },
-            { name: "C++", pkg: "Core library" }
-          ].map((lang) => (
-            <Card key={lang.name} className="p-4 bg-card border-border">
-              <div className="font-semibold mb-1">{lang.name}</div>
-              <code className="text-xs text-muted-foreground">{lang.pkg}</code>
+        <h2 className="mb-12 text-center text-3xl font-bold">Why BTOON</h2>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {FEATURES.map(({ icon: Icon, title, text }) => (
+            <Card key={title} className="gap-3 p-6">
+              <Icon className="h-8 w-8 text-primary" />
+              <h3 className="text-lg font-semibold">{title}</h3>
+              <p className="text-sm text-muted-foreground">{text}</p>
             </Card>
           ))}
         </div>
       </section>
 
-      {/* Comparison */}
       <section className="container py-16">
-        <h2 className="text-3xl font-bold text-center mb-12">Performance Comparison</h2>
-        <div className="max-w-3xl mx-auto">
-          <Card className="p-6 bg-card border-border">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4">Format</th>
-                    <th className="text-right py-3 px-4">Size</th>
-                    <th className="text-right py-3 px-4">Encode</th>
-                    <th className="text-right py-3 px-4">Decode</th>
+        <h2 className="mb-4 text-center text-3xl font-bold">Size, measured</h2>
+        <p className="mx-auto mb-10 max-w-2xl text-center text-muted-foreground">{SIZE_TABLE.method}</p>
+        <Card className="mx-auto max-w-2xl p-6">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border">
+                  {SIZE_TABLE.columns.map((c, i) => (
+                    <th key={c} className={cn("px-4 py-3", i === 0 ? "text-left" : "text-right")}>
+                      {c}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {SIZE_TABLE.rows.map((row, r) => (
+                  <tr key={row[0]} className="border-b border-border/50 last:border-0">
+                    {row.map((cell, i) => (
+                      <td
+                        key={i}
+                        className={cn(
+                          "px-4 py-3",
+                          i === 0 ? "text-left" : "text-right tabular-nums",
+                          SIZE_TABLE.highlight.includes(r) ? "font-semibold text-primary" : "text-muted-foreground"
+                        )}
+                      >
+                        {cell}
+                      </td>
+                    ))}
                   </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b border-border">
-                    <td className="py-3 px-4">JSON</td>
-                    <td className="text-right py-3 px-4 text-muted-foreground">4,523 bytes</td>
-                    <td className="text-right py-3 px-4 text-muted-foreground">~150 μs</td>
-                    <td className="text-right py-3 px-4 text-muted-foreground">~280 μs</td>
-                  </tr>
-                  <tr className="border-b border-border">
-                    <td className="py-3 px-4">MessagePack</td>
-                    <td className="text-right py-3 px-4 text-muted-foreground">2,741 bytes</td>
-                    <td className="text-right py-3 px-4 text-muted-foreground">~35 μs</td>
-                    <td className="text-right py-3 px-4 text-muted-foreground">~42 μs</td>
-                  </tr>
-                  <tr>
-                    <td className="py-3 px-4 font-semibold text-primary">BTOON Tabular</td>
-                    <td className="text-right py-3 px-4 font-semibold text-primary">1,847 bytes</td>
-                    <td className="text-right py-3 px-4 font-semibold text-primary">~38 μs</td>
-                    <td className="text-right py-3 px-4 font-semibold text-primary">~45 μs</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <p className="text-xs text-muted-foreground mt-4">
-              * Benchmark: 100 uniform user records on Intel i7
-            </p>
-          </Card>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-4 text-xs text-muted-foreground">
+            From the{" "}
+            <a href={SIZE_TABLE.source} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              btoon-core README
+            </a>
+            . Speed measurements for every library are on the{" "}
+            <Link href="/benchmarks" className="text-primary hover:underline">
+              benchmarks page
+            </Link>
+            .
+          </p>
+        </Card>
+      </section>
+
+      <section className="container py-16">
+        <h2 className="mb-4 text-center text-3xl font-bold">Libraries</h2>
+        <p className="mx-auto mb-10 max-w-2xl text-center text-muted-foreground">
+          Every library passes the same conformance vectors from btoon-core and writes byte-identical output.
+          Version 0.1.0 is not published to the package registries yet; the{" "}
+          <Link href="/downloads" className="text-primary hover:underline">
+            downloads page
+          </Link>{" "}
+          shows how to install each one today.
+        </p>
+        <div className="mx-auto grid max-w-5xl gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {PACKAGES.map((p) => (
+            <Card key={p.id} className="gap-2 p-5">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-semibold">{p.language}</span>
+                <a href={p.repo} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
+                  {p.repo.replace("https://github.com/", "")}
+                </a>
+              </div>
+              <code className="text-xs text-muted-foreground">{p.install ?? "Build from source with CMake"}</code>
+              <p className="text-xs text-muted-foreground">{p.summary}</p>
+            </Card>
+          ))}
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border py-12 mt-16">
-        <div className="container">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Package className="h-5 w-5 text-primary" />
-                <span className="font-bold">BTOON</span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                High-performance binary serialization format for the TOON spec with built-in tabular optimization.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Resources</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/docs"><a className="hover:text-foreground transition-colors">Documentation</a></Link></li>
-                <li><Link href="/benchmarks"><a className="hover:text-foreground transition-colors">Benchmarks</a></Link></li>
-                <li><Link href="/downloads"><a className="hover:text-foreground transition-colors">Downloads</a></Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Community</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <a
-                    href="https://github.com/BTOON-project"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    GitHub
-                  </a>
-                </li>
-                <li><a href="https://btoon.net" className="hover:text-foreground transition-colors">Website</a></li>
-                <li>
-                  <a
-                    href="https://github.com/toon-format/toon#readme"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    TOON Format
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://tonl.dev/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    TONL
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-            © 2025 BTOON Contributors. Released under MIT License.
-          </div>
-        </div>
-      </footer>
-    </div>
+      <section className="container py-16">
+        <Card className="mx-auto max-w-3xl gap-3 p-6">
+          <h2 className="text-xl font-semibold">Where the name comes from</h2>
+          <p className="text-sm text-muted-foreground">
+            <a href="https://github.com/toon-format/toon#readme" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              TOON
+            </a>{" "}
+            (Token-Oriented Object Notation) is a text format for LLM prompts that writes a table's field names once
+            instead of once per row. BTOON ("Binary TOON") applies the same idea to a binary, MessagePack-compatible
+            format. It is not a binary encoding of TOON text, and since it is binary it is meant for storage and
+            transport between programs, not for pasting into prompts.
+          </p>
+        </Card>
+      </section>
+    </>
   );
 }
