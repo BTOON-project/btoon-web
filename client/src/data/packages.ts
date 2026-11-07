@@ -1,6 +1,6 @@
 // Release status of every BTOON library, shown on Home, Downloads and Docs.
 // Update this file (and only this file) when a version is published.
-// Last checked: 2026-11-07. Library version 0.1.0 implements spec 0.1.
+// Last checked: 2026-11-07. Every library implements spec 0.1 (versions 0.1.x).
 
 export interface PackageInfo {
   id: "core" | "python" | "nodejs" | "javascript" | "go" | "php";
@@ -13,7 +13,7 @@ export interface PackageInfo {
   summary: string;
   /** The install command (none for the C++ core: build it or download the CLI). */
   install?: string;
-  /** True once 0.1.0 is on the registry (for Go: once v0.1.0 is tagged). */
+  /** True once a 0.1.x release is on the registry (for Go: once it is tagged). */
   published: boolean;
   /** Release status in one or two sentences. */
   status: string;
@@ -32,7 +32,7 @@ export const PACKAGES: readonly PackageInfo[] = [
     repo: `${GH}/btoon-core`,
     summary: "Reference implementation, the spec and the conformance vectors. C++20 library plus the btoon CLI.",
     published: true,
-    status: "The latest GitHub release has the btoon CLI prebuilt for Linux (x64, arm64), macOS and Windows. Build the library from source with CMake; a vcpkg port is in review.",
+    status: "0.1.1. The GitHub release has the btoon CLI prebuilt for Linux (x64, arm64), macOS and Windows. Build the library from source with CMake; a vcpkg port is in review.",
     fromSource: `git clone https://github.com/BTOON-project/btoon-core.git
 cd btoon-core
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -78,7 +78,7 @@ npm install && npm run build && npm test`,
     summary: "Pure TypeScript, zero dependencies. Browsers, Node.js, Deno, Bun and edge runtimes. Runs this site's playground.",
     install: "npm install @btoon/js",
     published: true,
-    status: "0.1.0 is on npm, published with provenance. It also runs this site's playground.",
+    status: "0.1.1 is on npm, published from GitHub Actions with provenance. It also runs this site's playground.",
     fromSource: `git clone https://github.com/BTOON-project/btoon-javascript.git
 cd btoon-javascript
 npm install && npm run build && npm test`,

@@ -1,6 +1,6 @@
 # BTOON
 
-> BTOON ("Binary TOON") is a compact binary serialization format: MessagePack plus a columnar ("tabular") encoding for arrays of uniform objects, extension types (timestamp, date, datetime, bigint, float32/float64 vectors), an optional compression envelope and an optional HMAC-SHA256 signed envelope. Encoding is canonical (one value, one byte sequence, in every language) and decoders are hardened for hostile input. Spec version 0.1; library version 0.1.0.
+> BTOON ("Binary TOON") is a compact binary serialization format: MessagePack plus a columnar ("tabular") encoding for arrays of uniform objects, extension types (timestamp, date, datetime, bigint, float32/float64 vectors), an optional compression envelope and an optional HMAC-SHA256 signed envelope. Encoding is canonical (one value, one byte sequence, in every language) and decoders are hardened for hostile input. Spec version 0.1; libraries 0.1.x.
 
 Key facts:
 
@@ -19,7 +19,7 @@ Key facts:
 
 ## Libraries
 
-Version 0.1.0 (released 2026-11-07) is on every registry: `npm install @btoon/js` (pure TypeScript, recommended for JavaScript), `npm install btoon` (native Node.js addon), `pip install btoon`, `go get github.com/BTOON-project/btoon-go@v0.1.0`, `composer require btoon/btoon`, and the btoon CLI on the btoon-core GitHub release. The 0.0.x releases used an incompatible format.
+Released 2026-11-07 on every registry (0.1.x): `npm install @btoon/js` (pure TypeScript, recommended for JavaScript), `npm install btoon` (native Node.js addon), `pip install btoon`, `go get github.com/BTOON-project/btoon-go@v0.1.0`, `composer require btoon/btoon`, and the btoon CLI on the btoon-core GitHub release. The 0.0.x releases used an incompatible format.
 
 - [btoon-core](https://github.com/BTOON-project/btoon-core): C++20 reference implementation and the btoon CLI
 - [btoon-python](https://github.com/BTOON-project/btoon-python): Python bindings over the core, PyPI package btoon

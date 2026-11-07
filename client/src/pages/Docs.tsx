@@ -291,7 +291,7 @@ export default function Docs() {
 
           <Section id="installation" title="Installation">
             <p>
-              Version 0.1.0 of every library implements spec 0.1. The{" "}
+              Every library implements spec 0.1 (versions 0.1.x). The{" "}
               <Link href="/downloads">downloads page</Link> has install and build instructions for each.
             </p>
             <Table
