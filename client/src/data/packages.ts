@@ -32,7 +32,7 @@ export const PACKAGES: readonly PackageInfo[] = [
     repo: `${GH}/btoon-core`,
     summary: "Reference implementation, the spec and the conformance vectors. C++20 library plus the btoon CLI.",
     published: true,
-    status: "0.1.1. The GitHub release has the btoon CLI prebuilt for Linux (x64, arm64), macOS and Windows. Build the library from source with CMake; a vcpkg port is in review.",
+    status: "0.1.3. The GitHub release has the btoon CLI prebuilt for Linux (x64, arm64), macOS and Windows. Build the library from source with CMake; a vcpkg port is in review.",
     fromSource: `git clone https://github.com/BTOON-project/btoon-core.git
 cd btoon-core
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
