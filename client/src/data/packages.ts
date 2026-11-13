@@ -56,7 +56,7 @@ export const PACKAGES: readonly PackageInfo[] = [
 target_link_libraries(app PRIVATE btoon::btoon_core)`,
     },
     published: true,
-    status: "0.1.3 is in vcpkg (since 2026-11-12; run git pull in your vcpkg clone if it isn't found), with optional features brotli, lz4, snappy and zstd. The GitHub release has the btoon CLI prebuilt for Linux (x64, arm64), macOS and Windows.",
+    status: "0.1.4 is the latest release. Its GitHub release has the btoon CLI prebuilt for Linux (x64, arm64), macOS and Windows. vcpkg has 0.1.3 so far (since 2026-11-12; run git pull in your vcpkg clone if it isn't found), with optional features brotli, lz4, snappy and zstd.",
     fromSource: `git clone https://github.com/BTOON-project/btoon-core.git
 cd btoon-core
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -89,7 +89,7 @@ cmake --install build   # library, headers, CMake package, btoon CLI`,
     summary: "Native Node-API addon over btoon-core. Same API as @btoon/js.",
     install: "npm install btoon",
     published: true,
-    status: "0.1.0 is on npm with prebuilt binaries for Linux x64 (glibc and musl), Linux arm64 (glibc), macOS (arm64, x64) and Windows (x64). For most Node.js apps @btoon/js is the faster choice.",
+    status: "0.1.1 is on npm with prebuilt binaries for Linux x64 (glibc and musl), Linux arm64 (glibc), macOS (arm64, x64) and Windows (x64). For most Node.js apps @btoon/js is the faster choice.",
     fromSource: `git clone --recursive https://github.com/BTOON-project/btoon-nodejs.git
 cd btoon-nodejs
 npm install && npm run build && npm test`,
@@ -121,10 +121,10 @@ npm install && npm run build && npm test`,
     summary: "Pure Go, standard library only. Optional codecs package for LZ4, Zstandard, Brotli and Snappy.",
     install: "go get github.com/BTOON-project/btoon-go",
     published: true,
-    status: "v0.1.0 is tagged and served by the Go module proxy.",
+    status: "v0.1.1 is tagged and served by the Go module proxy.",
     fromSource: `git clone https://github.com/BTOON-project/btoon-go.git
 cd btoon-go && go test ./...`,
-    requirements: "Go 1.22+. No cgo.",
+    requirements: "Go 1.25+. No cgo.",
   },
   {
     id: "php",
