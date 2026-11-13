@@ -1,11 +1,12 @@
 import { CodeBlock } from "@/components/CodeBlock";
+import { Github } from "@/components/GithubIcon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SIZE_TABLE } from "@/data/benchmarks";
 import { PACKAGES } from "@/data/packages";
 import { cn } from "@/lib/utils";
-import { Binary, Clock, Code, Download, Layers, Lock, ShieldCheck, Table2, Zap } from "lucide-react";
+import { Binary, Clock, Code, Download, Layers, Lock, Package, ShieldCheck, Table2, Zap } from "lucide-react";
 import { Link } from "wouter";
 
 const FEATURES = [
@@ -177,14 +178,32 @@ decode(bytes);               // the same 100 objects
         <div className="mx-auto grid max-w-5xl gap-4 md:grid-cols-2 lg:grid-cols-3">
           {PACKAGES.map((p) => (
             <Card key={p.id} className="gap-2 p-5">
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-semibold">{p.language}</span>
-                <a href={p.repo} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
+              <span className="font-semibold">{p.language}</span>
+              <code className="text-xs text-muted-foreground">{p.install}</code>
+              <p className="text-xs text-muted-foreground">{p.summary}</p>
+              <div className="mt-auto flex flex-wrap gap-x-4 gap-y-1 pt-2 text-xs">
+                {p.links.map((l) => (
+                  <a
+                    key={l.href}
+                    href={l.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-primary hover:underline"
+                  >
+                    {l.kind === "download" ? <Download className="h-3.5 w-3.5" /> : <Package className="h-3.5 w-3.5" />}
+                    {l.label}
+                  </a>
+                ))}
+                <a
+                  href={p.repo}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-primary hover:underline"
+                >
+                  <Github className="h-3.5 w-3.5" />
                   {p.repo.replace("https://github.com/", "")}
                 </a>
               </div>
-              <code className="text-xs text-muted-foreground">{p.install ?? "Build from source with CMake"}</code>
-              <p className="text-xs text-muted-foreground">{p.summary}</p>
             </Card>
           ))}
         </div>

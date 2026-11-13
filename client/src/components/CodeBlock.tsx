@@ -9,9 +9,10 @@ type HLJS = typeof import("highlight.js/lib/core").default;
 let highlighter: Promise<HLJS> | null = null;
 function loadHighlighter(): Promise<HLJS> {
   highlighter ??= (async () => {
-    const [core, bash, cpp, go, javascript, json, php, python, typescript] = await Promise.all([
+    const [core, bash, cmake, cpp, go, javascript, json, php, python, typescript] = await Promise.all([
       import("highlight.js/lib/core"),
       import("highlight.js/lib/languages/bash"),
+      import("highlight.js/lib/languages/cmake"),
       import("highlight.js/lib/languages/cpp"),
       import("highlight.js/lib/languages/go"),
       import("highlight.js/lib/languages/javascript"),
@@ -21,7 +22,7 @@ function loadHighlighter(): Promise<HLJS> {
       import("highlight.js/lib/languages/typescript"),
     ]);
     const hljs = core.default;
-    for (const [name, mod] of Object.entries({ bash, cpp, go, javascript, json, php, python, typescript })) {
+    for (const [name, mod] of Object.entries({ bash, cmake, cpp, go, javascript, json, php, python, typescript })) {
       hljs.registerLanguage(name, mod.default);
     }
     return hljs;

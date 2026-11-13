@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PACKAGES } from "@/data/packages";
-import { Download } from "lucide-react";
+import { Download, Package } from "lucide-react";
 
 const CLI = `btoon encode data.json data.btoon --compress   # JSON -> BTOON (zlib envelope)
 btoon decode data.btoon -                      # BTOON -> JSON on stdout
@@ -22,7 +22,7 @@ export default function Downloads() {
           </h1>
           <p className="text-lg text-muted-foreground">
             Every library implements spec <strong className="text-foreground">0.1</strong> (versions 0.1.x).
-            Each card has the install command and how to build from the repository.
+            Each card links to the package and its repository, with the install command and how to build from source.
           </p>
         </header>
 
@@ -33,30 +33,44 @@ export default function Downloads() {
                 <div>
                   <h2 className="text-xl font-semibold">{p.language}</h2>
                   <p className="text-sm text-muted-foreground">
-                    <code>{p.name}</code>
-                    {p.registry && <> on {p.registry}</>}. {p.summary}
+                    <code>{p.name}</code> on {p.registry}. {p.summary}
                   </p>
                 </div>
-                <Button asChild variant="outline" size="sm">
-                  <a href={p.repo} target="_blank" rel="noopener noreferrer">
-                    <Github className="h-4 w-4" />
-                    Repository
-                  </a>
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  {p.links.map((l) => (
+                    <Button key={l.href} asChild variant="outline" size="sm">
+                      <a href={l.href} target="_blank" rel="noopener noreferrer">
+                        {l.kind === "download" ? <Download className="h-4 w-4" /> : <Package className="h-4 w-4" />}
+                        {l.label}
+                      </a>
+                    </Button>
+                  ))}
+                  <Button asChild variant="outline" size="sm">
+                    <a href={p.repo} target="_blank" rel="noopener noreferrer">
+                      <Github className="h-4 w-4" />
+                      Repository
+                    </a>
+                  </Button>
+                </div>
               </div>
 
-              {p.install && (
+              <div>
+                <div className="mb-2 flex items-center gap-2 text-sm font-medium">
+                  Install
+                  {!p.published && <Badge variant="outline">coming soon</Badge>}
+                </div>
+                <CodeBlock lang="bash" code={p.install} />
+              </div>
+
+              {p.usage && (
                 <div>
-                  <div className="mb-2 flex items-center gap-2 text-sm font-medium">
-                    Install
-                    {!p.published && <Badge variant="outline">coming soon</Badge>}
-                  </div>
-                  <CodeBlock lang="bash" code={p.install} />
+                  <div className="mb-2 text-sm font-medium">{p.usage.title}</div>
+                  <CodeBlock lang={p.usage.lang} code={p.usage.code} />
                 </div>
               )}
 
               <div>
-                <div className="mb-2 text-sm font-medium">{!p.install ? "Build and install" : p.published ? "From source" : "Today"}</div>
+                <div className="mb-2 text-sm font-medium">{p.published ? "From source" : "Today"}</div>
                 <p className="mb-2 text-sm text-muted-foreground">{p.status}</p>
                 <CodeBlock lang="bash" code={p.fromSource} />
               </div>
@@ -73,7 +87,17 @@ export default function Downloads() {
           <p className="mb-4 text-muted-foreground">
             btoon-core builds a <code>btoon</code> CLI that converts between JSON and BTOON. Types JSON lacks
             round-trip as tagged objects such as <code>{'{"$binary": "<base64>"}'}</code> and{" "}
-            <code>{'{"$timestamp": "2024-01-01T00:00:00Z"}'}</code>.
+            <code>{'{"$timestamp": "2024-01-01T00:00:00Z"}'}</code>. Prebuilt binaries for Linux, macOS and Windows
+            are on the{" "}
+            <a
+              href="https://github.com/BTOON-project/btoon-core/releases/latest"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              latest GitHub release
+            </a>
+            .
           </p>
           <CodeBlock lang="bash" code={CLI} />
         </section>

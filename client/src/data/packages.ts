@@ -1,18 +1,29 @@
 // Release status of every BTOON library, shown on Home, Downloads and Docs.
 // Update this file (and only this file) when a version is published.
-// Last checked: 2026-11-07. Every library implements spec 0.1 (versions 0.1.x).
+// Last checked: 2026-11-13. Every library implements spec 0.1 (versions 0.1.x).
+
+export interface PackageLink {
+  /** Link text: the registry's or the download page's name. */
+  label: string;
+  href: string;
+  /** "registry" for a package page, "download" for prebuilt binaries. */
+  kind: "registry" | "download";
+}
 
 export interface PackageInfo {
   id: "core" | "python" | "nodejs" | "javascript" | "go" | "php";
   language: string;
-  /** Package or module name. */
+  /** Package or module name, as you install it. */
   name: string;
-  /** Where it is published: PyPI, npm, ... (none for the C++ core). */
-  registry?: string;
+  /** Where it is published: vcpkg, PyPI, npm, ... */
+  registry: string;
+  /** The package's registry page first, then any downloads. The repository is `repo`. */
+  links: readonly PackageLink[];
   repo: string;
   summary: string;
-  /** The install command (none for the C++ core: build it or download the CLI). */
-  install?: string;
+  install: string;
+  /** How to use it after installing, when the install command alone doesn't say. */
+  usage?: { title: string; lang: string; code: string };
   /** True once a 0.1.x release is on the registry (for Go: once it is tagged). */
   published: boolean;
   /** Release status in one or two sentences. */
@@ -28,11 +39,24 @@ export const PACKAGES: readonly PackageInfo[] = [
   {
     id: "core",
     language: "C++",
-    name: "btoon-core",
+    name: "btoon",
+    registry: "vcpkg",
+    links: [
+      // Switch to https://vcpkg.io/en/package/btoon once vcpkg.io lists the port (it updates every few weeks).
+      { label: "vcpkg", href: "https://github.com/microsoft/vcpkg/tree/master/ports/btoon", kind: "registry" },
+      { label: "CLI downloads", href: `${GH}/btoon-core/releases/latest`, kind: "download" },
+    ],
     repo: `${GH}/btoon-core`,
     summary: "Reference implementation, the spec and the conformance vectors. C++20 library plus the btoon CLI.",
+    install: "vcpkg install btoon",
+    usage: {
+      title: "Use from CMake",
+      lang: "cmake",
+      code: `find_package(btoon CONFIG REQUIRED)
+target_link_libraries(app PRIVATE btoon::btoon_core)`,
+    },
     published: true,
-    status: "0.1.3. The GitHub release has the btoon CLI prebuilt for Linux (x64, arm64), macOS and Windows. Build the library from source with CMake; a vcpkg port is in review.",
+    status: "0.1.3 is in vcpkg (since 2026-11-12; run git pull in your vcpkg clone if it isn't found), with optional features brotli, lz4, snappy and zstd. The GitHub release has the btoon CLI prebuilt for Linux (x64, arm64), macOS and Windows.",
     fromSource: `git clone https://github.com/BTOON-project/btoon-core.git
 cd btoon-core
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -46,6 +70,7 @@ cmake --install build   # library, headers, CMake package, btoon CLI`,
     language: "Python",
     name: "btoon",
     registry: "PyPI",
+    links: [{ label: "PyPI", href: "https://pypi.org/project/btoon/", kind: "registry" }],
     repo: `${GH}/btoon-python`,
     summary: "Native extension over btoon-core (pybind11).",
     install: "pip install btoon",
@@ -59,6 +84,7 @@ cmake --install build   # library, headers, CMake package, btoon CLI`,
     language: "Node.js",
     name: "btoon",
     registry: "npm",
+    links: [{ label: "npm", href: "https://www.npmjs.com/package/btoon", kind: "registry" }],
     repo: `${GH}/btoon-nodejs`,
     summary: "Native Node-API addon over btoon-core. Same API as @btoon/js.",
     install: "npm install btoon",
@@ -74,6 +100,7 @@ npm install && npm run build && npm test`,
     language: "JavaScript / TypeScript",
     name: "@btoon/js",
     registry: "npm",
+    links: [{ label: "npm", href: "https://www.npmjs.com/package/@btoon/js", kind: "registry" }],
     repo: `${GH}/btoon-javascript`,
     summary: "Pure TypeScript, zero dependencies. Browsers, Node.js, Deno, Bun and edge runtimes. Runs this site's playground.",
     install: "npm install @btoon/js",
@@ -89,6 +116,7 @@ npm install && npm run build && npm test`,
     language: "Go",
     name: "github.com/BTOON-project/btoon-go",
     registry: "Go modules",
+    links: [{ label: "pkg.go.dev", href: "https://pkg.go.dev/github.com/BTOON-project/btoon-go", kind: "registry" }],
     repo: `${GH}/btoon-go`,
     summary: "Pure Go, standard library only. Optional codecs package for LZ4, Zstandard, Brotli and Snappy.",
     install: "go get github.com/BTOON-project/btoon-go",
@@ -103,6 +131,7 @@ cd btoon-go && go test ./...`,
     language: "PHP",
     name: "btoon/btoon",
     registry: "Packagist",
+    links: [{ label: "Packagist", href: "https://packagist.org/packages/btoon/btoon", kind: "registry" }],
     repo: `${GH}/btoon-php`,
     summary: "Pure PHP, no C extension.",
     install: "composer require btoon/btoon",

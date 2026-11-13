@@ -299,10 +299,9 @@ export default function Docs() {
               rows={PACKAGES.map((p) => [
                 p.language,
                 <span key="n">
-                  <C>{p.name}</C>
-                  {p.registry && <> ({p.registry})</>}
+                  <C>{p.name}</C> ({p.registry})
                 </span>,
-                p.install ? <C key="i">{p.install}</C> : "build with CMake",
+                <C key="i">{p.install}</C>,
                 p.summary,
               ])}
             />
