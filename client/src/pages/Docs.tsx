@@ -291,7 +291,7 @@ export default function Docs() {
 
           <Section id="installation" title="Installation">
             <p>
-              Every library implements spec 0.1 (versions 0.1.x). The{" "}
+              Every library implements spec 0.2 (versions 0.2.x). The{" "}
               <Link href="/downloads">downloads page</Link> has install and build instructions for each.
             </p>
             <Table
@@ -353,7 +353,7 @@ export default function Docs() {
                 ["Wrap in a compression envelope", <C key="1">compress</C>, <C key="2">compress</C>, <C key="3">Compress</C>, "off"],
                 ["Algorithm", <C key="1">compression</C>, <C key="2">compression</C>, <C key="3">Compression</C>, "zlib"],
                 ["Tabular encoding", <C key="1">autoTabular</C>, <C key="2">auto_tabular</C>, <C key="3">DisableTabular</C>, "on"],
-                ["Nesting limit", <C key="1">maxDepth</C>, <C key="2">max_depth</C>, <C key="3">MaxDepth</C>, "128"],
+                ["Nesting limit", <C key="1">maxDepth</C>, <C key="2">max_depth</C>, <C key="3">MaxDepth</C>, "128 (at most 1000)"],
                 ["Sign with HMAC-SHA256", <C key="1">hmacKey</C>, <C key="2">hmac_key</C>, <C key="3">HMACKey</C>, "none"],
               ]}
             />
@@ -362,8 +362,9 @@ export default function Docs() {
               head={["Option", "JavaScript", "Python, PHP, C++", "Go", "Default"]}
               rows={[
                 ["Strict mode", <C key="1">strict</C>, <C key="2">strict</C>, <C key="3">NonStrict</C>, "on"],
-                ["Nesting limit", <C key="1">maxDepth</C>, <C key="2">max_depth</C>, <C key="3">MaxDepth</C>, "128"],
-                ["Largest decompressed size", <C key="1">maxDecompressedSize</C>, <C key="2">max_decompressed_size</C>, <C key="3">MaxDecompressedSize</C>, "256 MiB"],
+                ["Nesting limit", <C key="1">maxDepth</C>, <C key="2">max_depth</C>, <C key="3">MaxDepth</C>, "128 (at most 1000)"],
+                ["Largest decompressed size", <C key="1">maxDecompressedSize</C>, <C key="2">max_decompressed_size</C>, <C key="3">MaxDecompressedSize</C>, "64 MiB"],
+                ["Value budget", <C key="1">maxValues</C>, <C key="2">max_values</C>, <C key="3">MaxValues</C>, "1,048,576"],
                 ["Accept compression envelopes", <C key="1">autoDecompress</C>, <C key="2">auto_decompress</C>, <C key="3">DisableDecompression</C>, "on"],
                 ["Require and verify a signature", <C key="1">hmacKey</C>, <C key="2">hmac_key</C>, <C key="3">HMACKey</C>, "none"],
               ]}
@@ -380,6 +381,20 @@ export default function Docs() {
               </li>
               <li>
                 An empty HMAC key is an error (<C>invalid_argument</C>), never "no key". Use at least 32 random bytes.
+              </li>
+              <li>
+                Decoding has a memory budget (spec 0.2, §7.1).
+                <ul>
+                  <li>
+                    The value budget counts every value a document decodes to, table rows and cells included, and
+                    fails with <C>size_limit</C> past it.
+                  </li>
+                  <li>
+                    A table can't copy more column-name bytes into its rows than the decompressed-size limit allows.
+                  </li>
+                </ul>
+                Together they keep a few KB of hostile input from claiming gigabytes. Raise them for large tables. PHP
+                lowers the defaults to fit <C>memory_limit</C>.
               </li>
               <li>
                 Each library has a few language-specific options, for example how timestamps decode. See its README.
@@ -537,7 +552,7 @@ a5 416c696365      "Alice"`}
               <li>Requesting compression without an algorithm means zlib. An algorithm the encoder lacks is an error.</li>
               <li>
                 Decoders check the header in order (version, reserved bytes, <C>compressed_size</C>, then{" "}
-                <C>uncompressed_size</C> against their limit, 256 MiB by default, then the algorithm) before decompressing,
+                <C>uncompressed_size</C> against their limit, 64 MiB by default, then the algorithm) before decompressing,
                 and stop at the declared size. Decompression bombs fail with <C>size_limit</C> or <C>invalid_envelope</C>.
               </li>
               <li>Compressed bytes aren't canonical: different zlib builds produce different, equally valid streams.</li>
