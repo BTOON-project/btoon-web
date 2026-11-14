@@ -6,7 +6,7 @@ const GH = "https://github.com/BTOON-project";
 export function SiteFooter() {
   return (
     <footer className="mt-16 border-t border-border py-12">
-      <div className="container grid gap-8 md:grid-cols-3">
+      <div className="container grid gap-8 sm:grid-cols-2 md:grid-cols-4">
         <div>
           <div className="mb-4 flex items-center gap-2">
             <Package className="h-5 w-5 text-primary" />
@@ -32,6 +32,15 @@ export function SiteFooter() {
             <li><a href={`${GH}/btoon-core/blob/main/docs/SPEC.md`} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">Specification (SPEC.md)</a></li>
             <li><a href="https://github.com/toon-format/toon#readme" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">TOON format</a></li>
             <li><a href="https://msgpack.org" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">MessagePack</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2 className="mb-4 font-semibold">Community</h2>
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li><a href={`${GH}/btoon-core/discussions`} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">Questions and ideas</a></li>
+            <li><a href={`${GH}/btoon-core/issues/new/choose`} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">Report a bug or propose a change</a></li>
+            <li><Link href="/docs#feedback" className="hover:text-foreground">Versions and feedback</Link></li>
+            <li><a href={`${GH}/.github/blob/main/SECURITY.md`} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">Security policy</a></li>
           </ul>
         </div>
       </div>
