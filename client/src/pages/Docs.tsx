@@ -42,6 +42,7 @@ const NAV: { title: string; icon: typeof Book; items: [string, string][] }[] = [
       ["decoding", "Decoding rules"],
       ["messagepack", "MessagePack compatibility"],
       ["conformance", "Conformance"],
+      ["feedback", "Versions and feedback"],
     ],
   },
 ];
@@ -291,7 +292,7 @@ export default function Docs() {
 
           <Section id="installation" title="Installation">
             <p>
-              Every library implements spec 0.2 (versions 0.2.x). The{" "}
+              Every library implements spec 0.3 (versions 0.3.x). The{" "}
               <Link href="/downloads">downloads page</Link> has install and build instructions for each.
             </p>
             <Table
@@ -383,7 +384,7 @@ export default function Docs() {
                 An empty HMAC key is an error (<C>invalid_argument</C>), never "no key". Use at least 32 random bytes.
               </li>
               <li>
-                Decoding has a memory budget (spec 0.2, §7.1).
+                Decoding has a memory budget (§7.1).
                 <ul>
                   <li>
                     The value budget counts every value a document decodes to, table rows and cells included, and
@@ -397,8 +398,11 @@ export default function Docs() {
                 lowers the defaults to fit <C>memory_limit</C>.
               </li>
               <li>
-                Each library has a few language-specific options, for example how timestamps decode. See its README.
+                Timestamps, dates and datetimes decode to the language's own date type by default. A lossless mode returns
+                BTOON's own types instead, which write back the same extension: see{" "}
+                <a href="#extensions">Extension types</a>.
               </li>
+              <li>Each library has a few more language-specific options. See its README.</li>
             </ul>
           </Section>
 
@@ -509,6 +513,22 @@ a5 416c696365      "Alice"`}
               map straight onto <C>Float32Array</C>, numpy arrays and native memory. Ids -9 to -7 and -128 to -11 are
               reserved for future versions; decoders return them as generic extensions. Ids 0 to 127 belong to
               applications.
+            </p>
+            <h3>Timestamps, dates and datetimes in each library</h3>
+            <Table
+              head={["Library", "timestamp (-1)", "date (-2)", "datetime (-3)", "Lossless mode (default)"]}
+              rows={[
+                ["JavaScript (@btoon/js, btoon)", <C key="1">Timestamp</C>, <C key="2">BtoonDate</C>, <C key="3">BtoonDateTime</C>, <span key="4"><C>timestamps: 'object'</C> (<C>Date</C>)</span>],
+                ["Python", <C key="1">btoon.Timestamp</C>, <C key="2">btoon.Date</C>, <C key="3">btoon.DateTime</C>, <span key="4"><C>timestamps="object"</C> (<C>datetime</C>)</span>],
+                ["Go", <C key="1">btoon.Timestamp</C>, <C key="2">btoon.Date</C>, <C key="3">btoon.DateTime</C>, <span key="4"><C>PreserveTimeTypes</C> (<C>time.Time</C>)</span>],
+                ["PHP", <C key="1">BTOON\Timestamp</C>, <C key="2">BTOON\Date</C>, <C key="3">BTOON\DateTime</C>, <span key="4"><C>TimestampMode::Object</C> (<C>DateTimeImmutable</C>)</span>],
+                ["C++", <C key="1">btoon::Timestamp</C>, <C key="2">btoon::Date</C>, <C key="3">btoon::DateTime</C>, "always"],
+              ]}
+            />
+            <p>
+              In the lossless mode every value writes back the extension it came from, which spec 0.3 requires (§10). The
+              defaults are more convenient but write a timestamp: a date or datetime decoded to <C>Date</C> or{" "}
+              <C>datetime</C> comes back as -1.
             </p>
           </Section>
 
@@ -622,6 +642,32 @@ a5 416c696365      "Alice"`}
               </li>
               <li>
                 <a href="https://msgpack.org">msgpack.org</a>: MessagePack itself.
+              </li>
+            </ul>
+          </Section>
+
+          <Section id="feedback" title="Versions and feedback">
+            <p>
+              The spec is versioned 0.N, and a library's 0.N.x releases implement spec 0.N. A patch release fixes bugs or
+              adds API without changing what the library accepts or writes. The bytes of a valid canonical document haven't
+              changed since 0.1. Until 1.0, a new spec version may still tighten what decoders accept or add conformance
+              rules, and <a href={`${SPEC}#11-changes`}>§11 of the spec</a> lists every such change.
+            </p>
+            <p>BTOON grows from what its users need, so tell us how you use it:</p>
+            <ul>
+              <li>
+                <a href="https://github.com/BTOON-project/btoon-core/discussions">Discussions</a>: questions, ideas and use
+                cases.
+              </li>
+              <li>Bugs: an issue in the repository of the library concerned.</li>
+              <li>
+                Changes to the format: the{" "}
+                <a href="https://github.com/BTOON-project/btoon-core/issues/new/choose">spec change</a> issue form in
+                btoon-core.
+              </li>
+              <li>
+                Security problems: report them privately, as the{" "}
+                <a href="https://github.com/BTOON-project/.github/blob/main/SECURITY.md">security policy</a> describes.
               </li>
             </ul>
           </Section>

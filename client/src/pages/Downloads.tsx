@@ -21,7 +21,7 @@ export default function Downloads() {
             Downloads
           </h1>
           <p className="text-lg text-muted-foreground">
-            Every library implements spec <strong className="text-foreground">0.2</strong> (versions 0.2.x).
+            Every library implements spec <strong className="text-foreground">0.3</strong> (versions 0.3.x).
             Each card links to the package and its repository, with the install command and how to build from source.
           </p>
         </header>
